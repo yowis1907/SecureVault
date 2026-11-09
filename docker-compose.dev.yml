@@ -1,0 +1,6 @@
+# Publishes PostgreSQL on localhost so the backend can run outside Docker:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up db
+services:
+  db:
+    ports:
+      - '127.0.0.1:5432:5432'

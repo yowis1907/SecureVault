@@ -1,0 +1,25 @@
+# Secrets: only the example file is ever committed
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+target/
+coverage/
+
+# Test output
+playwright-report/
+test-results/
+
+# Tools and editors
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store
+Thumbs.db
+
+# Personal Claude Code settings (project skills in .claude/skills are shared)
+.claude/settings.local.json

@@ -1,0 +1,38 @@
+# Connection settings come from the standard SPRING_DATASOURCE_URL, _USERNAME
+# and _PASSWORD environment variables, so no credentials live in this file.
+spring:
+  application:
+    name: securevault
+  jpa:
+    hibernate:
+      # Only Flyway may change the schema. Hibernate just checks that it matches.
+      ddl-auto: validate
+    # Database work must finish inside the service layer, not during JSON rendering.
+    open-in-view: false
+  session:
+    jdbc:
+      # Flyway owns the session tables too (V6).
+      initialize-schema: never
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+  forward-headers-strategy: native
+  shutdown: graceful
+  servlet:
+    session:
+      timeout: 30m
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
