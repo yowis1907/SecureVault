@@ -78,7 +78,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 |---|---|---|---|---|
 | 1 | Stolen database, offline guessing of the master password from the wrapped DEK | T3 | Argon2id 64 MiB, t=3; unique salts; local strength requirement; no server verifier | Weak passwords can still be guessed; offline attackers set their own pace |
 | 2 | Stolen database, cracking account passwords | T3 | Argon2id at OWASP minimum or above; result does not reveal the vault | Weak or reused account passwords may be cracked, granting ciphertext access only |
-| 3 | Operator reads vault content | T4 | Full-record encryption; logs exclude bodies | Metadata visible (section 7) |
+| 3 | Operator reads vault content | T4 | Full-record encryption; logs exclude bodies. Tested end to end in `e2e/`: canaries in the master password and every entry field never appear in network traffic, database rows, or logs | Metadata visible (section 7). The test covers this code; it cannot cover modified code a compromised server might send (scenario 5) |
 | 4 | Session table read from a backup | T3 | Sessions expire; session grants only ciphertext; step-up protects destructive actions | Session IDs are stored unhashed by Spring Session; a live ID is usable until expiry |
 
 ### Malicious server (T5)

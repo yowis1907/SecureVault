@@ -14,6 +14,10 @@ updates:
         versions: ['>=7']
       # Crypto dependency: upgrades are reviewed by hand. See docs/ARCHITECTURE.md section 3.
       - dependency-name: hash-wasm
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule:
+      interval: weekly
   - package-ecosystem: docker
     directories:
       - /backend
