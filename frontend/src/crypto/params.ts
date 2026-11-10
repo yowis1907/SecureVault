@@ -2,6 +2,9 @@ import type { Bytes } from './encoding';
 import { CryptoFormatError } from './errors';
 import { randomBytes } from './random';
 
+/** Argon2id output length, used as HKDF input keying material. */
+export const ARGON2_OUTPUT_BYTES = 32;
+
 /** The only supported format. Unknown versions are rejected; there is no fallback. */
 export const CRYPTO_VERSION = 1;
 

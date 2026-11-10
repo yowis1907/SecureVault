@@ -1,10 +1,7 @@
 import { argon2id } from 'hash-wasm';
 import type { Bytes } from './encoding';
 import { CryptoFormatError } from './errors';
-import { validateKdfParams, type KdfParams } from './params';
-
-/** 32 bytes, used as HKDF input keying material. */
-export const ARGON2_OUTPUT_BYTES = 32;
+import { ARGON2_OUTPUT_BYTES, validateKdfParams, type KdfParams } from './params';
 
 /**
  * Computes Argon2id. Implemented by hash-wasm here, and by a Web Worker wrapper around this same

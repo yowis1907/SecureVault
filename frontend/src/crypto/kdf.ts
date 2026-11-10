@@ -2,10 +2,10 @@
  * Master password to KEK, ARCHITECTURE section 5.2:
  * NFKC, UTF-8, Argon2id, then HKDF-SHA-256 with an empty salt and the label securevault/v1/kek.
  */
-import { ARGON2_OUTPUT_BYTES, type Argon2idFunction } from './argon2';
+import type { Argon2idFunction } from './argon2';
 import { utf8Encode, type Bytes } from './encoding';
 import { CryptoFormatError } from './errors';
-import { validateKdfParams, type KdfParams } from './params';
+import { ARGON2_OUTPUT_BYTES, validateKdfParams, type KdfParams } from './params';
 
 const KEK_INFO = utf8Encode('securevault/v1/kek');
 

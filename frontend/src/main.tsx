@@ -1,7 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { applyTheme, getThemePreference } from './lib/theme';
 import './styles/index.css';
+
+// Applied before the first render. An inline script in index.html would do it earlier, but the
+// CSP allows no inline scripts.
+applyTheme(getThemePreference());
 
 const root = document.getElementById('root');
 if (!root) {

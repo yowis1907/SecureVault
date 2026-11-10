@@ -17,3 +17,4 @@ An ADR captures one significant decision: the situation, the choice, and what it
 | [0011](0011-required-email-verification.md) | Require email verification | Accepted |
 | [0012](0012-contract-first-api.md) | Hand-written API contract first | Accepted |
 | [0013](0013-explicit-sql-for-conditional-writes.md) | Explicit SQL for records, vault keys, tokens, and activity | Accepted |
+| [0014](0014-native-elements-instead-of-radix.md) | Native HTML elements instead of Radix and shadcn/ui | Accepted |

@@ -69,13 +69,13 @@ Versions were checked against npm, Maven Central, and endoflife.date on 2026-11-
 | TypeScript | 6.0.3 | **Not 7.x:** `typescript-eslint` 8.72 requires `<6.1.0` |
 | Vite | 8.3 | |
 | Tailwind CSS | 4.3 | |
-| shadcn/ui with `radix-ui` | CLI 4.23 / 1.8 | Components are copied into our code, so we can audit them |
+| Native `<dialog>` and small own components | n/a | Replaces shadcn/ui and Radix, which inject `<style>` elements the CSP blocks (ADR 0014) |
 | React Router | 8.5 | |
 | TanStack Query | 5 | Holds ciphertext only (section 5.9) |
 | React Hook Form, Zod | 7.91, 4.6 | |
 | `hash-wasm` | **4.12.0, exact pin** | See below |
 | `@zxcvbn-ts/core` and language packs | 4.x | Local strength estimation, loaded lazily |
-| `sonner`, `lucide-react` | 2.0, 1.x | Toasts and icons |
+| `lucide-react` | 1.71 | Icons. Toasts are our own `aria-live` region, since `sonner` injects styles |
 | Vitest, RTL, MSW, Playwright | 5.1, 16.3, 3.0, 1.65 | MSW and Playwright are dev-only |
 | `@noble/hashes` | 2.4 | **Dev-only**, used to cross-check Argon2id output |
 
@@ -363,7 +363,6 @@ These become individual ADRs in `docs/adr/` during Phase 1.
 | Item | Phase |
 |---|---|
 | Benchmark KDF on a mid-range phone; revise before any data format ships. Measured so far, 2026-11-10, with `npm run benchmark` under the production CSP: laptop with Intel i5-12450H, Chromium 152, median 223 ms over 5 runs. **No phone measured yet** | 2 |
-| Whether `sonner`, Radix, and shadcn work with `style-src 'self'` and no inline style elements | 4 |
 | Feasibility of adding `require-trusted-types-for 'script'` to the CSP | 4 |
 | Node 26 compatibility across the toolchain | 1 |
 | Read the full ePrint 2026/058 paper and update section 5.11 | 2 |

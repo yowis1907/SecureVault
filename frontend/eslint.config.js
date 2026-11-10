@@ -17,6 +17,11 @@ export default tseslint.config(
     plugins: { 'react-hooks': reactHooks },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      // React Hook Form's handleSubmit returns a promise and is meant to be passed to onSubmit.
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { attributes: false } },
+      ],
       // Security guardrails: these mistakes fail the build rather than wait for review.
       'no-console': 'error',
       'no-restricted-properties': [

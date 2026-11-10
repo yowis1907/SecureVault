@@ -1,1 +1,168 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/atkinson-hyperlegible-next';
+@import '@fontsource-variable/atkinson-hyperlegible-mono';
+
+/*
+ * SecureVault tokens: "a precision instrument".
+ * Graphite and mineral-grey neutrals, one verdigris accent (the patina of oxidized copper).
+ * Colour carries meaning only: verdigris = unlocked/primary, amber = weak or expiring, red = danger.
+ * Atkinson Hyperlegible was drawn so that l, I, 1, O and 0 cannot be confused, which matters for
+ * reading and typing passwords.
+ *
+ * Themes switch by redefining these variables; components never use a dark: variant.
+ */
+:root {
+  color-scheme: light;
+  --sv-bg: #eceeea;
+  --sv-surface: #f7f8f5;
+  --sv-surface-2: #e2e5e0;
+  --sv-line: #c9cec8;
+  --sv-text: #1b1f22;
+  --sv-muted: #565e5b;
+  --sv-accent: #2b7164;
+  --sv-accent-strong: #1f5a4f;
+  --sv-on-accent: #f7f8f5;
+  --sv-accent-soft: #d3e6e0;
+  --sv-warn: #8a5a0b;
+  --sv-warn-soft: #f1e3c8;
+  --sv-danger: #a23a2f;
+  --sv-danger-soft: #f2d9d5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --sv-bg: #16191b;
+    --sv-surface: #1d2124;
+    --sv-surface-2: #262b2e;
+    --sv-line: #363c40;
+    --sv-text: #e4e7e3;
+    --sv-muted: #9ba39f;
+    --sv-accent: #6fc2af;
+    --sv-accent-strong: #8fd3c3;
+    --sv-on-accent: #10201c;
+    --sv-accent-soft: #1f3a35;
+    --sv-warn: #e0a84a;
+    --sv-warn-soft: #3a2e17;
+    --sv-danger: #ec8a7d;
+    --sv-danger-soft: #3d2320;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --sv-bg: #16191b;
+  --sv-surface: #1d2124;
+  --sv-surface-2: #262b2e;
+  --sv-line: #363c40;
+  --sv-text: #e4e7e3;
+  --sv-muted: #9ba39f;
+  --sv-accent: #6fc2af;
+  --sv-accent-strong: #8fd3c3;
+  --sv-on-accent: #10201c;
+  --sv-accent-soft: #1f3a35;
+  --sv-warn: #e0a84a;
+  --sv-warn-soft: #3a2e17;
+  --sv-danger: #ec8a7d;
+  --sv-danger-soft: #3d2320;
+}
+
+@theme inline {
+  --font-sans: 'Atkinson Hyperlegible Next Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono Variable', ui-monospace, monospace;
+
+  --color-bg: var(--sv-bg);
+  --color-surface: var(--sv-surface);
+  --color-surface-2: var(--sv-surface-2);
+  --color-line: var(--sv-line);
+  --color-text: var(--sv-text);
+  --color-muted: var(--sv-muted);
+  --color-accent: var(--sv-accent);
+  --color-accent-strong: var(--sv-accent-strong);
+  --color-on-accent: var(--sv-on-accent);
+  --color-accent-soft: var(--sv-accent-soft);
+  --color-warn: var(--sv-warn);
+  --color-warn-soft: var(--sv-warn-soft);
+  --color-danger: var(--sv-danger);
+  --color-danger-soft: var(--sv-danger-soft);
+
+  /* A 1.25 scale from a 16px base. */
+  --text-xs: 0.8rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+
+  --radius-control: 6px;
+  --radius-panel: 10px;
+}
+
+@layer base {
+  html {
+    background: var(--sv-bg);
+    color: var(--sv-text);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--sv-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--sv-accent-soft);
+  }
+
+  dialog::backdrop {
+    background: rgb(10 12 13 / 0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* The lock fuse: a bar that burns down toward auto-lock. Width comes from a CSS variable that
+   React sets through the style object (CSSOM), which the CSP allows. */
+@layer components {
+  .fuse {
+    --fuse: 1;
+    position: relative;
+    height: 3px;
+    background: var(--sv-line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .fuse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(var(--fuse));
+    background: var(--sv-accent);
+    transition: transform 1s linear;
+  }
+  .fuse[data-low='true']::after {
+    background: var(--sv-warn);
+  }
+
+  .secret {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+}
