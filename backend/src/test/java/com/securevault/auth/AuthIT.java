@@ -5,28 +5,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.jayway.jsonpath.JsonPath;
-import com.securevault.TestcontainersConfiguration;
+import com.securevault.testsupport.IntegrationTest;
+import com.securevault.testsupport.MutableClock;
 import jakarta.servlet.http.Cookie;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -39,9 +30,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
  * PostgreSQL. Each test uses its own simulated browser with its own IP, so rate limits from one
  * test cannot affect another. All passwords are generated test values.
  */
-@Import({TestcontainersConfiguration.class, AuthIT.TestClock.class})
-@SpringBootTest
-@AutoConfigureMockMvc
+@IntegrationTest
 class AuthIT {
 
   private static final String COOKIE = "SV_SESSION";
@@ -50,39 +39,6 @@ class AuthIT {
   @Autowired private JdbcTemplate jdbc;
   @Autowired private PasswordEncoder passwordEncoder;
   @Autowired private MutableClock clock;
-
-  /** A clock tests can move forward instead of sleeping. */
-  static final class MutableClock extends Clock {
-    private final AtomicReference<Instant> now = new AtomicReference<>(Instant.now());
-
-    void advance(Duration duration) {
-      now.updateAndGet(i -> i.plus(duration));
-    }
-
-    @Override
-    public Instant instant() {
-      return now.get();
-    }
-
-    @Override
-    public ZoneId getZone() {
-      return ZoneOffset.UTC;
-    }
-
-    @Override
-    public Clock withZone(ZoneId zone) {
-      return this;
-    }
-  }
-
-  @TestConfiguration(proxyBeanMethods = false)
-  static class TestClock {
-    @Bean
-    @Primary
-    MutableClock testClock() {
-      return new MutableClock();
-    }
-  }
 
   /** Holds what a browser would: the session cookie, the in-memory CSRF token, and an IP. */
   final class Browser {

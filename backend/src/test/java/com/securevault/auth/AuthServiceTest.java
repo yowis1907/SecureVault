@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.securevault.account.AccountCredentials;
 import com.securevault.account.UserService;
+import com.securevault.activity.ActivityService;
 import com.securevault.common.error.ApiException;
 import com.securevault.common.error.ErrorCode;
 import java.util.Optional;
@@ -28,7 +29,7 @@ class AuthServiceTest {
   @BeforeEach
   void setUp() {
     when(encoder.encode(anyString())).thenReturn("dummy-hash");
-    service = new AuthService(users, encoder, new LoginRateLimits());
+    service = new AuthService(users, encoder, new AuthRateLimits(), mock(ActivityService.class));
   }
 
   @Test
@@ -45,7 +46,8 @@ class AuthServiceTest {
   void looksUpTheNormalizedEmail() {
     UUID id = UUID.randomUUID();
     when(users.findCredentials("user@example.test"))
-        .thenReturn(Optional.of(new AccountCredentials(id, "real-hash", true)));
+        .thenReturn(
+            Optional.of(new AccountCredentials(id, "user@example.test", "real-hash", true)));
     when(encoder.matches(eq("pw"), eq("real-hash"))).thenReturn(true);
 
     assertThat(service.login("  USER@Example.TEST ", "pw", "192.0.2.2")).isEqualTo(id);

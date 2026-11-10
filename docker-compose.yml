@@ -25,6 +25,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_MAIL_HOST: mailpit
+      SECUREVAULT_PUBLIC_URL: http://localhost:${WEB_PORT:-3000}
     read_only: true
     tmpfs:
       - /tmp
@@ -49,10 +51,9 @@ services:
     security_opt:
       - no-new-privileges:true
 
-  # Captures outgoing email locally. Start with: docker compose --profile dev up
+  # Captures every outgoing email locally; nothing is delivered. Inbox: http://127.0.0.1:8025
   mailpit:
     image: axllent/mailpit:v1.33.1
-    profiles: [dev]
     ports:
       - '127.0.0.1:8025:8025'
 

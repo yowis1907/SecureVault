@@ -21,6 +21,28 @@ class User {
 
   protected User() {}
 
+  User(UUID id, String email, String passwordHash, Instant now) {
+    this.id = id;
+    this.email = email;
+    this.passwordHash = passwordHash;
+    this.passwordChangedAt = now;
+    this.createdAt = now;
+    this.updatedAt = now;
+  }
+
+  void markVerified(Instant now) {
+    if (emailVerifiedAt == null) {
+      emailVerifiedAt = now;
+      updatedAt = now;
+    }
+  }
+
+  void changePassword(String newHash, Instant now) {
+    passwordHash = newHash;
+    passwordChangedAt = now;
+    updatedAt = now;
+  }
+
   UUID getId() {
     return id;
   }

@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -38,7 +39,14 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
 class SecurityConfig {
 
   static final String CSRF_ENDPOINT = "/api/v1/auth/csrf";
-  static final String LOGIN_ENDPOINT = "/api/v1/auth/login";
+  static final String[] PUBLIC_POST_ENDPOINTS = {
+    "/api/v1/auth/login",
+    "/api/v1/auth/register",
+    "/api/v1/auth/verify-email",
+    "/api/v1/auth/verification/resend",
+    "/api/v1/auth/password/forgot",
+    "/api/v1/auth/password/reset"
+  };
 
   /**
    * Argon2id with 19 MiB, 2 passes, 1 lane, 16-byte salt, 32-byte hash: the OWASP minimum. Set
@@ -108,7 +116,7 @@ class SecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, CSRF_ENDPOINT)
                 .permitAll()
-                .requestMatchers(HttpMethod.POST, LOGIN_ENDPOINT)
+                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
                 .permitAll()
                 .requestMatchers("/api/v1/**")
                 .authenticated()
@@ -126,11 +134,14 @@ class SecurityConfig {
                         e instanceof CsrfException
                             ? ErrorCode.CSRF_REJECTED
                             : ErrorCode.FORBIDDEN)))
+        // First of all, so no oversized body is read by anything after it.
+        .addFilterBefore(new RequestSizeLimitFilter(problems), SecurityContextHolderFilter.class)
         .addFilterBefore(
             new OriginCheckFilter(properties.allowedOrigins(), problems), CsrfFilter.class)
         .addFilterAfter(
             new AbsoluteSessionTimeoutFilter(clock, properties.absoluteSessionTimeout()),
             SecurityContextHolderFilter.class)
+        .addFilterAfter(new UserRateLimitFilter(problems), AuthorizationFilter.class)
         // A JSON API has no login page to return to. Left on, this stores a new session for every
         // denied anonymous request.
         .requestCache(AbstractHttpConfigurer::disable)

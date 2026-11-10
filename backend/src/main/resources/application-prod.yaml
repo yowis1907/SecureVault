@@ -1,5 +1,7 @@
 # Production settings. ProductionSafetyCheck refuses to start if any of these are unsafe.
 securevault:
+  public-url: ${SECUREVAULT_PUBLIC_URL}
+  mail-from: ${SECUREVAULT_MAIL_FROM}
   security:
     session-cookie-name: __Host-SV_SESSION
     session-cookie-secure: true

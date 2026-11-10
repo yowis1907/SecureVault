@@ -98,7 +98,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 | # | Scenario | Actor | Mitigation | Residual risk |
 |---|---|---|---|---|
 | 12 | Credential stuffing | T1 | Per-IP, per-account throttles; the vault still needs the master password | Distributed attacks slow but do not stop; instance-local limits |
-| 13 | Account enumeration | T1 | Uniform registration, login, and reset responses; timing equalization | Timing differences may remain; tested in Phase 6 |
+| 13 | Account enumeration | T1 | Uniform registration, login, and reset responses, checked by integration tests. Login hashes against a dummy value for unknown emails; registration hashes before checking the address; email goes out in the background, and the per-address email limit fails silently | Timing differences may remain, for example from the extra inserts when a new account is created. Not yet measured; Phase 6 |
 | 14 | CSRF | T1 | SameSite=Strict, session-bound token, Origin and Fetch Metadata checks | Low |
 | 15 | Session theft through script | T7 | HttpOnly cookies | XSS can still make same-origin requests while active |
 | 16 | Session fixation | T1 | Session ID regenerated on login | Low |
@@ -144,7 +144,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 | 36 | Compromised npm or Maven package | T9 | Lockfiles, exact crypto pins, minimal dependencies, Dependabot, audits | Malicious code before disclosure |
 | 37 | Secrets committed to Git | T9 | `.env` ignored; secret scanning in CI | Human error |
 | 38 | Insecure production settings | T1, T6 | `prod` profile fails startup on unsafe configuration | Misconfiguration outside the application |
-| 39 | Filling the session table with anonymous requests | T1 | Only `GET /auth/csrf` creates an anonymous session, and it expires after 10 minutes idle. Denied anonymous GETs and POSTs create none. Tested in `ApplicationIT` and `AuthIT`, and checked against the Docker stack | Repeated calls to the CSRF endpoint still create short-lived rows; a rate limit on it is not in place yet |
+| 39 | Filling the session table with anonymous requests | T1 | Only `GET /auth/csrf` creates an anonymous session, and it expires after 10 minutes idle. Denied anonymous GETs and POSTs create none. Tested in `ApplicationIT` and `AuthIT`, and checked against the Docker stack | The CSRF endpoint is limited to 30 per minute per IP, but many IPs can still create short-lived rows; limits are per instance |
 
 ## 6. Security assumptions
 

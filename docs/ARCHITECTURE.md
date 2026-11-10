@@ -310,6 +310,7 @@ Registration always returns the same 202 response. If the email is already regis
 | Forgot password or resend, per email | 3 per hour, always returning the normal response |
 | Forgot password or resend, per IP | 10 per hour |
 | Token submission, per IP | 10 per hour |
+| CSRF token, per IP | 30 per minute, because each anonymous fetch creates a short-lived session |
 | Step-up operations, per user | 5 per 15 minutes |
 | General authenticated API, per user | 300 per minute |
 

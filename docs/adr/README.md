@@ -16,3 +16,4 @@ An ADR captures one significant decision: the situation, the choice, and what it
 | [0010](0010-encrypted-settings.md) | Store vault settings encrypted | Accepted |
 | [0011](0011-required-email-verification.md) | Require email verification | Accepted |
 | [0012](0012-contract-first-api.md) | Hand-written API contract first | Accepted |
+| [0013](0013-explicit-sql-for-conditional-writes.md) | Explicit SQL for records, vault keys, tokens, and activity | Accepted |

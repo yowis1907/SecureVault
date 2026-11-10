@@ -28,16 +28,19 @@ class AuthController {
   private final UserService users;
   private final SessionEstablisher sessions;
   private final SecurityProperties properties;
+  private final AuthRateLimits rateLimits;
 
   AuthController(
       AuthService authService,
       UserService users,
       SessionEstablisher sessions,
-      SecurityProperties properties) {
+      SecurityProperties properties,
+      AuthRateLimits rateLimits) {
     this.authService = authService;
     this.users = users;
     this.sessions = sessions;
     this.properties = properties;
+    this.rateLimits = rateLimits;
   }
 
   /**
@@ -46,6 +49,7 @@ class AuthController {
    */
   @GetMapping("/csrf")
   CsrfResponse csrf(CsrfToken token, HttpServletRequest request) {
+    rateLimits.csrf(request.getRemoteAddr());
     CsrfResponse response = new CsrfResponse(token.getHeaderName(), token.getToken());
     HttpSession session = request.getSession(false);
     if (session != null && request.getUserPrincipal() == null) {

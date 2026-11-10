@@ -2,6 +2,7 @@ package com.securevault.common.error;
 
 import com.securevault.common.error.Problems.FieldProblem;
 import com.securevault.common.ratelimit.RateLimitedException;
+import com.securevault.common.security.RequestSizeLimitFilter;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -13,9 +14,11 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
@@ -50,9 +53,27 @@ class GlobalExceptionHandler {
     return problem(ErrorCode.VALIDATION_FAILED, errors);
   }
 
-  /** Malformed JSON, wrong types, or unknown fields, which could otherwise smuggle in plaintext. */
-  @ExceptionHandler({HttpMessageNotReadableException.class, HandlerMethodValidationException.class})
-  ResponseEntity<Map<String, Object>> unreadable() {
+  /**
+   * Malformed JSON, wrong types, or unknown fields, which could otherwise smuggle in plaintext. A
+   * body cut off by RequestSizeLimitFilter also surfaces here, wrapped in the parse error.
+   */
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  ResponseEntity<Map<String, Object>> unreadable(HttpMessageNotReadableException e) {
+    for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+      if (cause instanceof RequestSizeLimitFilter.PayloadTooLargeException) {
+        return problem(ErrorCode.PAYLOAD_TOO_LARGE, List.of());
+      }
+    }
+    return problem(ErrorCode.VALIDATION_FAILED, List.of());
+  }
+
+  /** Bad query or path parameters, such as a limit out of range or an ID that is not a UUID. */
+  @ExceptionHandler({
+    HandlerMethodValidationException.class,
+    MethodArgumentTypeMismatchException.class,
+    MissingServletRequestParameterException.class
+  })
+  ResponseEntity<Map<String, Object>> badParameter() {
     return problem(ErrorCode.VALIDATION_FAILED, List.of());
   }
 

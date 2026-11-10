@@ -9,7 +9,7 @@
 - **Timestamps** are ISO 8601 UTC. **IDs** are UUIDs.
 - **Authentication:** session cookie set by login. JavaScript never reads it.
 - **CSRF:** every `POST`, `PUT`, `PATCH`, and `DELETE` must include `X-XSRF-TOKEN`. Get the token from `GET /auth/csrf` at startup and again after login and logout.
-- **Body limits:** 256 KiB generally, 8 MiB for `POST /vault/records/batch`.
+- **Body limits:** 256 KiB generally, 8 MiB for `POST /vault/records/batch`. A batch of 200 maximum-size records would exceed 8 MiB, so clients split imports by size as well as count.
 - **Naming:** `accountPassword` is always the account password. No endpoint accepts a master password or anything derived from one.
 
 ## Error format
