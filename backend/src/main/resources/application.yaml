@@ -13,6 +13,10 @@ spring:
     jdbc:
       # Flyway owns the session tables too (V6).
       initialize-schema: never
+  jackson:
+    deserialization:
+      # A request with an unexpected field is rejected, so plaintext cannot be added by accident.
+      fail-on-unknown-properties: true
 
 server:
   error:
@@ -24,7 +28,22 @@ server:
   shutdown: graceful
   servlet:
     session:
+      # Idle timeout. The 8-hour absolute limit is enforced by AbsoluteSessionTimeoutFilter.
       timeout: 30m
+
+securevault:
+  security:
+    # The cookie is HttpOnly, SameSite=Strict, Path=/ (see SecurityConfig). Local HTTP cannot use
+    # Secure or the __Host- prefix; the prod profile sets both and checks them at startup.
+    session-cookie-name: SV_SESSION
+    session-cookie-secure: false
+    allowed-origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+      - http://localhost:5173
+    absolute-session-timeout: 8h
+    anonymous-session-timeout: 10m
+    max-concurrent-password-hashes: 4
 
 management:
   endpoints:

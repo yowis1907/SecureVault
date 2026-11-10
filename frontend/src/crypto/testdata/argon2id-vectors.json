@@ -1,0 +1,77 @@
+{
+  "source": "Generated with Bouncy Castle bcprov-jdk18on 1.86 (Argon2id, version 1.3, 32-byte output). Test data only.",
+  "vectors": [
+    {
+      "name": "ascii, spec defaults",
+      "passwordHex": "636f727265637420686f727365206261747465727920737461706c65",
+      "saltHex": "000102030405060708090a0b0c0d0e0f",
+      "memoryKib": 65536,
+      "iterations": 3,
+      "parallelism": 1,
+      "outputHex": "0d1a3c6523c8f06e4e0af9c515aa5b5448cfebd6838f2d52c3d8b6ef8ddc3c2e"
+    },
+    {
+      "name": "unicode, spec defaults",
+      "passwordHex": "70c3a4737377c3b672642dc59f696672652de5af86e7a0812df09f9490",
+      "saltHex": "101112131415161718191a1b1c1d1e1f",
+      "memoryKib": 65536,
+      "iterations": 3,
+      "parallelism": 1,
+      "outputHex": "a820f05ccd2cd1adc561946e4e989fb4cbaf2cd1e420ae2aabe8ee9ed0fbf2ed"
+    },
+    {
+      "name": "empty password, spec defaults",
+      "passwordHex": "",
+      "saltHex": "202122232425262728292a2b2c2d2e2f",
+      "memoryKib": 65536,
+      "iterations": 3,
+      "parallelism": 1,
+      "outputHex": "7541d222ae59c44a7bd4fb6ad5fc675588a2513f1eea5e194b36722c12b88b6f"
+    },
+    {
+      "name": "1024 arbitrary bytes, spec defaults",
+      "passwordHex": "00070e151c232a31383f464d545b626970777e858c939aa1a8afb6bdc4cbd2d9e0e7eef5fc030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d444b525960676e757c838a91989fa6adb4bbc2c9d0d7dee5ecf3fa01080f161d242b323940474e555c636a71787f868d949ba2a9b0b7bec5ccd3dae1e8eff6fd040b121920272e353c434a51585f666d747b828990979ea5acb3bac1c8cfd6dde4ebf2f900070e151c232a31383f464d545b626970777e858c939aa1a8afb6bdc4cbd2d9e0e7eef5fc030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d444b525960676e757c838a91989fa6adb4bbc2c9d0d7dee5ecf3fa01080f161d242b323940474e555c636a71787f868d949ba2a9b0b7bec5ccd3dae1e8eff6fd040b121920272e353c434a51585f666d747b828990979ea5acb3bac1c8cfd6dde4ebf2f900070e151c232a31383f464d545b626970777e858c939aa1a8afb6bdc4cbd2d9e0e7eef5fc030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d444b525960676e757c838a91989fa6adb4bbc2c9d0d7dee5ecf3fa01080f161d242b323940474e555c636a71787f868d949ba2a9b0b7bec5ccd3dae1e8eff6fd040b121920272e353c434a51585f666d747b828990979ea5acb3bac1c8cfd6dde4ebf2f900070e151c232a31383f464d545b626970777e858c939aa1a8afb6bdc4cbd2d9e0e7eef5fc030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d444b525960676e757c838a91989fa6adb4bbc2c9d0d7dee5ecf3fa01080f161d242b323940474e555c636a71787f868d949ba2a9b0b7bec5ccd3dae1e8eff6fd040b121920272e353c434a51585f666d747b828990979ea5acb3bac1c8cfd6dde4ebf2f9",
+      "saltHex": "303132333435363738393a3b3c3d3e3f",
+      "memoryKib": 65536,
+      "iterations": 3,
+      "parallelism": 1,
+      "outputHex": "716ebe1f46f82bb4c73a9c91a3320ff15bbfe38ca4bfff5b271d2ce65fe52079"
+    },
+    {
+      "name": "more iterations",
+      "passwordHex": "746573742d766563746f722d70617373776f7264",
+      "saltHex": "404142434445464748494a4b4c4d4e4f",
+      "memoryKib": 65536,
+      "iterations": 5,
+      "parallelism": 1,
+      "outputHex": "93fa085798e9a4182568099826f9f05623ddda0894181679bfad60f1a5c112e0"
+    },
+    {
+      "name": "more memory",
+      "passwordHex": "746573742d766563746f722d70617373776f7264",
+      "saltHex": "505152535455565758595a5b5c5d5e5f",
+      "memoryKib": 131072,
+      "iterations": 3,
+      "parallelism": 1,
+      "outputHex": "1df4b71d3bab620712ca0c6ba7f8899cadf35071af55e73e711120d345087365"
+    },
+    {
+      "name": "two lanes",
+      "passwordHex": "746573742d766563746f722d70617373776f7264",
+      "saltHex": "606162636465666768696a6b6c6d6e6f",
+      "memoryKib": 65536,
+      "iterations": 3,
+      "parallelism": 2,
+      "outputHex": "3a1f6a79b1c217c89ffc375f0b196937843d12be437b464dcceabf00aff92744"
+    },
+    {
+      "name": "four lanes",
+      "passwordHex": "746573742d766563746f722d70617373776f7264",
+      "saltHex": "707172737475767778797a7b7c7d7e7f",
+      "memoryKib": 65536,
+      "iterations": 3,
+      "parallelism": 4,
+      "outputHex": "20f41e66bd6e74581fc84c7fa56d4de71a5c59a89d000dfb8cca8233377afe03"
+    }
+  ]
+}

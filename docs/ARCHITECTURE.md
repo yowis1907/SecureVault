@@ -81,7 +81,7 @@ Versions were checked against npm, Maven Central, and endoflife.date on 2026-11-
 
 **Why `hash-wasm`.** It is actively maintained, MIT licensed, dependency-free, works in Web Workers, accepts `Uint8Array` inputs, and has no published GitHub security advisories. The alternatives: `argon2-browser` has had no release since 2022, and `@noble/hashes` is pure JavaScript, so it is much slower, which forces weaker parameters for the same wait. No independent audit of `hash-wasm` was found, which is why we cross-check its output in tests.
 
-**Why exactly 4.12.0.** Version 4.13.0 was published on 2026-11-07, the day before this research, following a two-year gap. A surprise release of a crypto dependency deserves a look before adoption. We pin 4.12.0 and review 4.13.0 separately.
+**Why exactly 4.12.0.** Version 4.13.0 was published on 2026-11-07, following a two-year gap. Its release notes and commit list were reviewed on 2026-11-09. It rebuilds all WASM modules with a newer compiler (Clang 17 to 22), so the Argon2 binary has very likely changed, while its listed fixes concern bcrypt, xxHash, and TypeScript types, none of which SecureVault uses. No maintainer change was visible, but the source diff would not render, so it was not read. Upgrading would add risk for no benefit, so 4.12.0 stays pinned. Any future upgrade must pass the cross-implementation vectors.
 
 **Deliberately not used**
 
@@ -276,7 +276,8 @@ Scarlata, Torrisi, Backendal, and Paterson (USENIX Security 2026, IACR ePrint 20
 | Account password hash | `Argon2PasswordEncoder(16, 32, 1, 19456, 2)`, set explicitly because Spring's current default is 16 MiB, below OWASP's 19 MiB minimum |
 | Hashing concurrency | Bounded so a login flood cannot exhaust memory |
 | Session | Opaque server-side session in PostgreSQL through Spring Session JDBC. The principal name is the user UUID, so email addresses stay out of the session table |
-| Cookie | `__Host-SV_SESSION; HttpOnly; Secure; SameSite=Strict; Path=/` in production. Local HTTP uses a non-`__Host-` name without `Secure` |
+| Cookie | `__Host-SV_SESSION; HttpOnly; Secure; SameSite=Strict; Path=/` in production. Local HTTP uses `SV_SESSION` without `Secure`. Set by an explicit `CookieSerializer` bean, because Boot applies `server.servlet.session.cookie.*` only when it runs an embedded server, so tests would otherwise check a different cookie |
+| Anonymous sessions | Created only by `GET /auth/csrf`, with a 10-minute idle timeout. A wrapper around the CSRF token repository stops other anonymous requests from creating one |
 | Timeouts | Idle 30 minutes, absolute 8 hours (enforced by a small filter, as Spring Session only tracks idle time) |
 | Rotation | New session ID at login; all sessions ended on account password reset; other sessions ended on password change |
 | CSRF | Session-stored synchronizer token with Spring's default XOR masking, delivered by `GET /auth/csrf` and held in memory by the client |
@@ -360,10 +361,7 @@ These become individual ADRs in `docs/adr/` during Phase 1.
 
 | Item | Phase |
 |---|---|
-| Spring Session cookie naming and anonymous-session TTL for pre-login CSRF | 2 |
-| Stop anonymous POSTs creating session rows. Measured in Phase 1: one row per denied POST, likely from the CSRF filter saving a new token. Needs an integration test like `deniedAnonymousGetCreatesNoSession` | 2 |
-| Benchmark KDF on a mid-range phone; revise before any data format ships | 2 |
-| Review `hash-wasm` 4.13.0 changes against 4.12.0 | 2 |
+| Benchmark KDF on a mid-range phone; revise before any data format ships. Measured so far, 2026-11-10, with `npm run benchmark` under the production CSP: laptop with Intel i5-12450H, Chromium 152, median 223 ms over 5 runs. **No phone measured yet** | 2 |
 | Whether `sonner`, Radix, and shadcn work with `style-src 'self'` and no inline style elements | 4 |
 | Feasibility of adding `require-trusted-types-for 'script'` to the CSP | 4 |
 | Node 26 compatibility across the toolchain | 1 |

@@ -144,7 +144,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 | 36 | Compromised npm or Maven package | T9 | Lockfiles, exact crypto pins, minimal dependencies, Dependabot, audits | Malicious code before disclosure |
 | 37 | Secrets committed to Git | T9 | `.env` ignored; secret scanning in CI | Human error |
 | 38 | Insecure production settings | T1, T6 | `prod` profile fails startup on unsafe configuration | Misconfiguration outside the application |
-| 39 | Filling the session table with anonymous requests | T1 | Denied GETs create no session (integration tested). Short anonymous-session lifetime and rate limits planned | **Open:** each denied anonymous POST still stores a session row. To be fixed in Phase 2 |
+| 39 | Filling the session table with anonymous requests | T1 | Only `GET /auth/csrf` creates an anonymous session, and it expires after 10 minutes idle. Denied anonymous GETs and POSTs create none. Tested in `ApplicationIT` and `AuthIT`, and checked against the Docker stack | Repeated calls to the CSRF endpoint still create short-lived rows; a rate limit on it is not in place yet |
 
 ## 6. Security assumptions
 

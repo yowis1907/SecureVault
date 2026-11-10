@@ -36,10 +36,13 @@ Errors follow RFC 9457 with `Content-Type: application/problem+json`.
 | 403 | `CSRF_REJECTED` | CSRF, Origin, or Fetch Metadata check failed |
 | 403 | `EMAIL_NOT_VERIFIED` | Returned only after a correct password |
 | 403 | `STEP_UP_FAILED` | Wrong `accountPassword` on a sensitive action |
+| 403 | `FORBIDDEN` | Signed in, but the path is not part of the API |
 | 404 | `NOT_FOUND` | Does not exist **or** belongs to another user |
+| 405 | `METHOD_NOT_ALLOWED` | Known path, unsupported HTTP method |
 | 409 | `VERSION_CONFLICT` | Stale `version` or `expectedKeyVersion` |
 | 409 | `RECORD_ID_CONFLICT` | Client-generated ID already exists |
 | 413 | `PAYLOAD_TOO_LARGE` | Body or record too large |
+| 415 | `UNSUPPORTED_MEDIA_TYPE` | Body is not `application/json` |
 | 422 | `QUOTA_EXCEEDED` | More than 5,000 records |
 | 429 | `RATE_LIMITED` | Includes `Retry-After` |
 | 500 | `INTERNAL_ERROR` | Generic message plus `traceId` |
@@ -88,6 +91,8 @@ Allowed: `memoryKib` 65536–1048576, `iterations` 3–10, `parallelism` 1–4.
 ### `GET /auth/csrf`
 Public. Returns `200 { "headerName": "X-XSRF-TOKEN", "token": "..." }`.
 
+This is the only request that may create a session for a visitor who is not signed in. That session holds just the token and expires after 10 minutes idle. Any other anonymous request, including a rejected `POST`, creates no session. The token value changes on every call because it is masked with fresh randomness; all values for the same session are valid.
+
 ### `POST /auth/register`
 Public. Creates the account and vault in one transaction.
 
@@ -107,6 +112,8 @@ Public. `{ "email": "..." }`. Always `202`.
 Public. `{ "email": "...", "accountPassword": "..." }`.
 
 `200` returns User and sets a new session cookie. Errors: `401 INVALID_CREDENTIALS`, `403 EMAIL_NOT_VERIFIED`, `429`.
+
+The session ID changes at login, and the CSRF token from before login stops working, so the client fetches a new one. `429` is also returned when the server is already running its maximum number of password hashes.
 
 ### `POST /auth/logout`
 Authenticated. `204`. Destroys the session.

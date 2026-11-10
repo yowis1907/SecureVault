@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SecureVault KDF benchmark</title>
+  </head>
+  <body>
+    <h1>Argon2id benchmark</h1>
+    <p>
+      Runs the vault key derivation with the default parameters in a Web Worker, under the
+      production Content Security Policy. Uses a fixed test password, never a real one.
+    </p>
+    <button id="run" type="button">Run 5 derivations</button>
+    <pre id="output" aria-live="polite"></pre>
+    <script type="module" src="/src/benchmark/main.ts"></script>
+  </body>
+</html>

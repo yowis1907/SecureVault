@@ -1,0 +1,7 @@
+# Production settings. ProductionSafetyCheck refuses to start if any of these are unsafe.
+securevault:
+  security:
+    session-cookie-name: __Host-SV_SESSION
+    session-cookie-secure: true
+    # The public HTTPS origin, for example https://vault.example.com. No default on purpose.
+    allowed-origins: ${SECUREVAULT_PUBLIC_URL}

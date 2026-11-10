@@ -37,8 +37,8 @@ class ApplicationIT {
 
   @Test
   void otherActuatorEndpointsAreNotReachable() throws Exception {
-    mockMvc.perform(get("/actuator/env")).andExpect(status().isForbidden());
-    mockMvc.perform(get("/actuator/beans")).andExpect(status().isForbidden());
+    mockMvc.perform(get("/actuator/env")).andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/actuator/beans")).andExpect(status().isUnauthorized());
   }
 
   /** Otherwise anyone could grow the session table without logging in. */
@@ -48,7 +48,7 @@ class ApplicationIT {
 
     mockMvc
         .perform(get("/api/v1/anything"))
-        .andExpect(status().isForbidden())
+        .andExpect(status().isUnauthorized())
         .andExpect(header().doesNotExist("Set-Cookie"));
 
     assertThat(sessionRowCount()).isEqualTo(before);
