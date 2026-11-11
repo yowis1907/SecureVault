@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.securevault.testsupport.ApiClient;
 import com.securevault.testsupport.ApiClient.Response;
 import com.securevault.testsupport.ApiTestBase;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Error codes that do not belong to one feature. Each response is RFC 9457 problem JSON. */
@@ -55,6 +56,24 @@ class ErrorResponsesIT extends ApiTestBase {
     assertThat(limited).isNotNull();
     assertThat(limited.code()).isEqualTo("RATE_LIMITED");
     assertThat(limited.header("Retry-After")).isNotBlank();
+  }
+
+  /** Found in the Phase 6 audit: a NUL character reached PostgreSQL and came back as a 500. */
+  @Test
+  void controlCharactersInAnEmailAreAValidationErrorNotAServerError() {
+    ApiClient api = client().fetchCsrf();
+    // JSON escapes, so the request body itself stays valid JSON.
+    for (String escape : List.of("\\u0000", "\\u0007", "\\n")) {
+      String email = "a" + escape + "b@example.test";
+      String login = "{\"email\":\"" + email + "\",\"accountPassword\":\"x\"}";
+      String only = "{\"email\":\"" + email + "\"}";
+      assertThat(api.postRaw("/api/v1/auth/login", "application/json", login).code())
+          .isEqualTo("VALIDATION_FAILED");
+      assertThat(api.postRaw("/api/v1/auth/password/forgot", "application/json", only).code())
+          .isEqualTo("VALIDATION_FAILED");
+      assertThat(api.postRaw("/api/v1/auth/verification/resend", "application/json", only).code())
+          .isEqualTo("VALIDATION_FAILED");
+    }
   }
 
   @Test

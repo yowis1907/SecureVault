@@ -1,6 +1,6 @@
 # SecureVault Threat Model
 
-**Status:** Design-stage model written in Phase 0. It describes intended mitigations, not implemented or tested ones. It will be revised as the system is built, and re-checked in Phase 6.
+**Status:** Written in Phase 0 and re-checked in Phase 6. The mitigations are implemented unless a row says otherwise. Which ones are tested, reviewed, or accepted is recorded per scenario in [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md). That audit is a self-review, not an independent assessment.
 
 SecureVault has not had an independent security assessment. It is a portfolio project and should not be used to store real credentials.
 
@@ -70,7 +70,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 
 ## 5. Attack scenarios
 
-**Status for all rows:** planned. Effectiveness will be tested in Phases 2 through 6.
+**Status per row:** see the table in [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md).
 
 ### Database and server-side exposure
 
@@ -97,8 +97,8 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 
 | # | Scenario | Actor | Mitigation | Residual risk |
 |---|---|---|---|---|
-| 12 | Credential stuffing | T1 | Per-IP, per-account throttles; the vault still needs the master password | Distributed attacks slow but do not stop; instance-local limits |
-| 13 | Account enumeration | T1 | Uniform registration, login, and reset responses, checked by integration tests. Login hashes against a dummy value for unknown emails; registration hashes before checking the address; email goes out in the background, and the per-address email limit fails silently | Timing differences may remain, for example from the extra inserts when a new account is created. Not yet measured; Phase 6 |
+| 12 | Credential stuffing | T1 | Per-IP, per-account throttles; the vault still needs the master password | Distributed attacks slow but do not stop; instance-local limits. The per-email throttle also lets an attacker temporarily block sign-in for a known address |
+| 13 | Account enumeration | T1 | Uniform registration, login, and reset responses, checked by integration tests. Login hashes against a dummy value for unknown emails; registration hashes before checking the address; email goes out in the background, and the per-address email limit fails silently | Timing differences of 2 to 4 ms were measured in-process in Phase 6. Not measured over a network |
 | 14 | CSRF | T1 | SameSite=Strict, session-bound token, Origin and Fetch Metadata checks | Low |
 | 15 | Session theft through script | T7 | HttpOnly cookies | XSS can still make same-origin requests while active |
 | 16 | Session fixation | T1 | Session ID regenerated on login | Low |

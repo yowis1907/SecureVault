@@ -5,9 +5,12 @@ import { fake } from '../test/fake-server';
 import { sentToServer, signedInUser } from '../test/helpers';
 import { emptyLogin } from './model';
 import {
+  deleteCategory,
+  deleteLogin,
   getSnapshot,
   lock,
   lockIfExpired,
+  saveCategory,
   saveLogin,
   saveSettings,
   touch,
@@ -127,5 +130,57 @@ describe('vault session', () => {
     await unlock(account.masterPassword);
     const snapshot = getSnapshot();
     expect(snapshot.status === 'unlocked' && snapshot.damaged).toBe(1);
+  });
+});
+
+describe('vault session: categories, settings, and edits', () => {
+  it('saves, edits, and deletes entries and categories, surviving a lock', async () => {
+    const account = await signedInUser();
+    await unlock(account.masterPassword);
+    const category = await saveCategory({ schema: 1, name: canary('category') });
+    const created = await saveLogin({ ...emptyLogin(), title: 'B', categoryId: category.id });
+    const other = await saveLogin({ ...emptyLogin(), title: 'a' });
+    const edited = await saveLogin({ ...emptyLogin(), title: 'B', password: 'new-pw' }, created);
+    expect(edited.version).toBe(2);
+    await saveSettings({ schema: 1, autoLockMinutes: 9, clipboardClearSeconds: 60 });
+    await deleteLogin(other.id);
+
+    lock();
+    await unlock(account.masterPassword);
+    let snapshot = getSnapshot();
+    if (snapshot.status !== 'unlocked') throw new Error('expected unlocked');
+    expect(snapshot.logins.map((l) => [l.title, l.password, l.version])).toEqual([
+      ['B', 'new-pw', 2],
+    ]);
+    expect(snapshot.categories.map((c) => c.name)).toEqual([category.name]);
+    expect(snapshot.settings.autoLockMinutes).toBe(9);
+    expect(sentToServer(category.name)).toBe(false);
+
+    await deleteCategory(category.id);
+    snapshot = getSnapshot();
+    expect(snapshot.status === 'unlocked' && snapshot.categories).toEqual([]);
+  });
+
+  it('falls back to safe defaults when stored settings were tampered with', async () => {
+    const account = await signedInUser();
+    account.user.vault.settings = {
+      nonce: btoa('n'.repeat(12)),
+      ciphertext: btoa('c'.repeat(272)),
+    };
+    await unlock(account.masterPassword);
+    const snapshot = getSnapshot();
+    if (snapshot.status !== 'unlocked') throw new Error('expected unlocked');
+    expect(snapshot.settings.autoLockMinutes).toBe(5);
+    expect(snapshot.damaged).toBe(1);
+  });
+
+  it('rejects a stale edit instead of overwriting newer data', async () => {
+    const account = await signedInUser();
+    await unlock(account.masterPassword);
+    const created = await saveLogin({ ...emptyLogin(), title: 'x' });
+    await saveLogin({ ...emptyLogin(), title: 'y' }, created);
+    await expect(saveLogin({ ...emptyLogin(), title: 'z' }, created)).rejects.toMatchObject({
+      code: 'VERSION_CONFLICT',
+    });
   });
 });

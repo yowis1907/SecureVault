@@ -1,6 +1,6 @@
 # SecureVault Project Plan
 
-**Status:** Phase 0 complete on approval. No application code exists yet.
+**Status:** Phases 0 to 6 complete. Phase 7 (polish and final documentation) remains.
 
 Related documents: [Architecture](ARCHITECTURE.md), [Threat model](../THREAT_MODEL.md), [API](API_SPECIFICATION.md), [Database](DATABASE_DESIGN.md).
 

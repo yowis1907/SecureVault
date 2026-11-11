@@ -150,3 +150,35 @@ describe('settings', () => {
     await expect(decryptRecord(dek, r, settings)).rejects.toThrow(DecryptionError);
   });
 });
+
+describe('authentic ciphertext with unexpected contents', () => {
+  // Possible only for someone holding the key, but the reader must still fail closed.
+  async function sealRaw(r: RecordRef, plaintext: Uint8Array<ArrayBuffer>): Promise<EncryptedBlob> {
+    const nonce = crypto.getRandomValues(new Uint8Array(12));
+    const additionalData = new TextEncoder().encode(
+      `securevault|1|record|${r.vaultId}|${r.recordId}|${r.recordType}`,
+    );
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: nonce, additionalData },
+      dek,
+      plaintext,
+    );
+    return { cryptoVersion: 1, nonce, ciphertext: new Uint8Array(ciphertext) };
+  }
+
+  it('rejects contents that are not JSON', async () => {
+    const r = ref();
+    const padded = new Uint8Array(256);
+    padded.set([0, 0, 0, 3, 0x6e, 0x6f, 0x21]);
+    await expect(decryptRecord(dek, r, await sealRaw(r, padded))).rejects.toThrow(
+      CryptoFormatError,
+    );
+  });
+
+  it('rejects contents with broken padding', async () => {
+    const r = ref();
+    await expect(decryptRecord(dek, r, await sealRaw(r, new Uint8Array(100)))).rejects.toThrow(
+      CryptoFormatError,
+    );
+  });
+});

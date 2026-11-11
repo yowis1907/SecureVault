@@ -200,7 +200,9 @@ export const records = {
     const all: StoredRecord[] = [];
     let cursor: string | null = null;
     do {
-      const query: string = cursor ? `?limit=1000&cursor=${cursor}` : '?limit=1000';
+      const query: string = cursor
+        ? `?limit=1000&cursor=${encodeURIComponent(cursor)}`
+        : '?limit=1000';
       const page: { records: RecordWire[]; nextCursor: string | null } = await request(
         'GET',
         `/vault/records${query}`,
