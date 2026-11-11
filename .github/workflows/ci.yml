@@ -59,7 +59,8 @@ jobs:
           curl -fsS -D headers.txt -o /dev/null http://127.0.0.1:3000/
           grep -i '^content-security-policy:' headers.txt
           code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/v1/anything)
-          test "$code" = "403"
+          # Anonymous requests to the API are refused as unauthenticated.
+          test "$code" = "401"
           # /actuator is private. nginx should answer with the app shell, not health JSON.
           if curl -s http://127.0.0.1:3000/actuator/health | grep -q '"status"'; then
             echo "Actuator is exposed through nginx" >&2

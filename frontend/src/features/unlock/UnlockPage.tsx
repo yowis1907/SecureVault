@@ -5,7 +5,6 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { Wordmark } from '../../components/layout/Wordmark';
 import { Button } from '../../components/ui/Button';
 import { PasswordField } from '../../components/ui/Field';
-import { Notice } from '../../components/ui/Notice';
 import { auth } from '../../lib/api/endpoints';
 import { useCurrentUser } from '../../lib/api/queries';
 import { messageFor } from '../../lib/errors';
@@ -106,13 +105,5 @@ export function UnlockPage() {
         </form>
       </main>
     </div>
-  );
-}
-
-export function UnlockFailureHint() {
-  return (
-    <Notice tone="neutral">
-      Unlock again to continue. Locking happened in this tab or another one.
-    </Notice>
   );
 }

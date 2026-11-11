@@ -1,6 +1,6 @@
 # SecureVault Database Design
 
-**Status:** Phase 0 design. PostgreSQL 18, managed by Flyway. Hibernate runs with `ddl-auto=validate`, so only migrations can alter the schema.
+**Status:** Implemented in migrations V1 to V6 and checked by integration tests. PostgreSQL 18, managed by Flyway. Hibernate runs with `ddl-auto=validate`, so only migrations can alter the schema.
 
 ## Design principle
 
@@ -197,8 +197,8 @@ Scheduled purge jobs run in the application. Database backups are outside this p
 - **`CHECK` constraints that repeat application validation:** the database remains correct even if a code path has a bug.
 - **Foreign keys with cascade:** account deletion cannot leave orphaned ciphertext behind.
 
-## Verification planned
+## Verification
 
-- Migrations are applied to an empty PostgreSQL 18 container in integration tests, and Hibernate's validation has to pass.
-- Constraint tests confirm that wrong nonce lengths and out-of-range KDF values are rejected directly by the database.
-- The end-to-end suite queries `vault_records` and `vaults` for canary strings and expects none.
+- Migrations are applied to an empty PostgreSQL 18 container in integration tests, and Hibernate's validation has to pass (`ApplicationIT`).
+- Constraint tests confirm that wrong nonce lengths and out-of-range KDF values are rejected directly by the database (`SchemaConstraintsIT`).
+- The end-to-end suite dumps every table and searches it for canary strings, as text and as `bytea` hex, and expects none (`e2e/tests/journey.spec.ts`).

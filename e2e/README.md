@@ -11,6 +11,10 @@ Playwright tests that run against the full Docker Compose stack: nginx with the 
 
 All accounts and passwords are generated per run. No real credentials are used.
 
+## Screenshots
+
+`screenshots.mjs` signs up a sample account, adds made-up entries, and saves the README images to `docs/screenshots`. Run it with the stack up: `PW_CHANNEL=msedge node screenshots.mjs`.
+
 ## Running locally
 
 From the repository root, start the stack:

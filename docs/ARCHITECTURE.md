@@ -1,6 +1,6 @@
 # SecureVault Architecture
 
-**Status:** Phase 0 design, not yet implemented. Library behavior listed in section 11 still has to be confirmed during implementation.
+**Status:** Implemented. Written in Phase 0 and kept current since; the items still unverified are listed in section 11 and in the [audit](SECURITY_AUDIT.md). For a shorter overview, start with the [security architecture](SECURITY_ARCHITECTURE.md).
 
 ## 1. Purpose and principles
 
@@ -358,14 +358,15 @@ These become individual ADRs in `docs/adr/` during Phase 1.
 | 11 | Email verification required | Log in immediately | Needed for enumeration-safe registration and reliable reset |
 | 12 | Hand-written API contract | Generated OpenAPI first | Contract is designed before code exists |
 
-## 11. To verify during implementation
+## 11. Still unverified
 
-| Item | Phase |
+Node 26 compatibility, the hash-wasm 4.13 review, cookie naming, and the CSP behavior of UI libraries were settled during the build and are no longer listed.
+
+| Item | Planned for phase |
 |---|---|
 | Benchmark KDF on a mid-range phone; revise before any data format ships. Measured so far, 2026-11-10, with `npm run benchmark` under the production CSP: laptop with Intel i5-12450H, Chromium 152, median 223 ms over 5 runs. **No phone measured yet** | 2 |
-| Feasibility of adding `require-trusted-types-for 'script'` to the CSP | 4 |
-| Node 26 compatibility across the toolchain | 1 |
-| Read the full ePrint 2026/058 paper and update section 5.11 | 2 |
+| Feasibility of adding `require-trusted-types-for 'script'` to the CSP. Not tried in a browser; the Web Worker URL would need a policy first | 4 |
+| Read the full ePrint 2026/058 paper and update section 5.11. The PDF could not be downloaded on two attempts, most recently 2026-11-11 | 2 |
 
 ## References
 

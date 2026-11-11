@@ -31,9 +31,10 @@ import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
 /**
- * Closed by default: only health, the CSRF token, and login are public, everything else under
- * /api/v1 needs a session, and any other path is denied. Login is handled by AuthController and
- * SessionEstablisher rather than a form login, because the API speaks JSON.
+ * Closed by default: only health, the CSRF token, and the sign-in, sign-up, and email-link
+ * endpoints are public. Everything else under /api/v1 needs a session, and any other path is
+ * denied. Login is handled by AuthController and SessionEstablisher rather than a form login,
+ * because the API speaks JSON.
  */
 @Configuration(proxyBeanMethods = false)
 class SecurityConfig {

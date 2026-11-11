@@ -1,6 +1,6 @@
 # SecureVault API Specification
 
-**Version:** v1 draft (Phase 0). This contract is written before the code. Change this document first when behavior changes.
+**Version:** v1. Implemented, and checked by integration tests for every endpoint and error code. Change this document first when behavior changes.
 
 ## Conventions
 

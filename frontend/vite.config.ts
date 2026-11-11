@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       environment: 'jsdom',
+      // Argon2id at 64 MiB runs for real in these tests; slower CI machines need the headroom.
+      testTimeout: 30_000,
       globals: true,
       setupFiles: ['./src/test/setup.ts'],
     },

@@ -1,6 +1,6 @@
 # SecureVault Project Plan
 
-**Status:** Phases 0 to 6 complete. Phase 7 (polish and final documentation) remains.
+**Status:** All phases complete. This document records the plan as approved; what was actually delivered and what remains open is in the [final report](FINAL_REPORT.md).
 
 Related documents: [Architecture](ARCHITECTURE.md), [Threat model](../THREAT_MODEL.md), [API](API_SPECIFICATION.md), [Database](DATABASE_DESIGN.md).
 
