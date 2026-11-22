@@ -8,16 +8,26 @@
  *   wiped, so this reduces exposure rather than eliminating it.
  */
 import type { Argon2idFunction } from '../crypto/argon2';
-import { decryptRecord, decryptSettings, encryptRecord, encryptSettings } from '../crypto/records';
+import { createBackup, openBackup } from '../crypto/backup';
+import { CryptoFormatError } from '../crypto/errors';
+import {
+  decryptRecord,
+  decryptSettings,
+  encryptRecord,
+  encryptSettings,
+  type EncryptedBlob,
+} from '../crypto/records';
 import { unlockVault } from '../crypto/vault-keys';
-import { onUnauthenticated } from '../lib/api/client';
+import { ApiError, onUnauthenticated } from '../lib/api/client';
 import { records as recordsApi, vault as vaultApi, type StoredRecord } from '../lib/api/endpoints';
 import { createWorkerArgon2 } from '../workers/argon2-client';
 import {
+  backupContentsSchema,
   categoryDataSchema,
   DEFAULT_SETTINGS,
   loginDataSchema,
   settingsSchema,
+  type BackupContents,
   type Category,
   type CategoryData,
   type LoginData,
@@ -253,6 +263,134 @@ export async function saveSettings(settings: VaultSettings): Promise<void> {
     settings: value,
     lockAt: Date.now() + value.autoLockMinutes * 60_000,
   });
+}
+
+/**
+ * An encrypted backup of every login and category, as file text for the user to download. It is
+ * built and encrypted here; nothing is sent to the server.
+ */
+export async function exportBackup(passphrase: string): Promise<string> {
+  const current = unlocked();
+  const contents: BackupContents = {
+    schema: 1,
+    exportedAt: new Date().toISOString(),
+    categories: current.categories.map((c) => ({ ref: c.id, name: c.name })),
+    logins: current.logins.map((l) => loginDataSchema.parse(l)),
+  };
+  return createBackup(passphrase, contents, getArgon2());
+}
+
+export interface ImportResult {
+  logins: number;
+  categories: number;
+}
+
+/** Batches stay well inside the server's 200-record and 8 MiB limits. */
+const BATCH_COUNT = 100;
+const BATCH_BYTES = 4 * 1024 * 1024;
+
+/**
+ * Decrypts a backup with its passphrase, then adds everything to this vault under new IDs,
+ * encrypted with this vault's key. Nothing existing is replaced. Categories are matched by name.
+ *
+ * Each upload batch is all or nothing on the server, but a large import uses several batches; if
+ * one fails, the batches before it stay imported.
+ */
+export async function importBackup(fileText: string, passphrase: string): Promise<ImportResult> {
+  const before = unlocked();
+  let contents: BackupContents;
+  const opened = await openBackup(fileText, passphrase, getArgon2());
+  try {
+    contents = backupContentsSchema.parse(opened);
+  } catch {
+    throw new CryptoFormatError('The backup contents are not valid.');
+  }
+
+  const byName = new Map(before.categories.map((c) => [c.name.toLocaleLowerCase(), c.id]));
+  const categoryIds = new Map<string, string>();
+  const newCategories: { id: string; data: CategoryData }[] = [];
+  for (const c of contents.categories) {
+    const existing = byName.get(c.name.toLocaleLowerCase());
+    if (existing) {
+      categoryIds.set(c.ref, existing);
+    } else {
+      const id = crypto.randomUUID();
+      categoryIds.set(c.ref, id);
+      byName.set(c.name.toLocaleLowerCase(), id);
+      newCategories.push({ id, data: { schema: 1, name: c.name } });
+    }
+  }
+  const newLogins = contents.logins.map((l) => ({
+    id: crypto.randomUUID(),
+    data: loginDataSchema.parse({
+      ...l,
+      categoryId: l.categoryId ? (categoryIds.get(l.categoryId) ?? null) : null,
+    }),
+  }));
+
+  // Damaged records could not be shown, but the server still counts them toward the limit.
+  const total = before.logins.length + before.categories.length + before.damaged;
+  if (total + newLogins.length + newCategories.length > 5000) {
+    throw new ApiError(422, 'QUOTA_EXCEEDED');
+  }
+
+  const key = requireKey();
+  const vaultId = before.vaultId;
+  const items: { id: string; type: 'LOGIN' | 'CATEGORY'; blob: EncryptedBlob; value: unknown }[] =
+    [];
+  for (const c of newCategories) {
+    const ref = { vaultId, recordId: c.id, recordType: 'CATEGORY' as const };
+    items.push({
+      id: c.id,
+      type: 'CATEGORY',
+      blob: await encryptRecord(key, ref, c.data),
+      value: c.data,
+    });
+  }
+  for (const l of newLogins) {
+    const ref = { vaultId, recordId: l.id, recordType: 'LOGIN' as const };
+    items.push({
+      id: l.id,
+      type: 'LOGIN',
+      blob: await encryptRecord(key, ref, l.data),
+      value: l.data,
+    });
+  }
+
+  const values = new Map(items.map((i) => [i.id, i.value]));
+  let batch: typeof items = [];
+  let bytes = 0;
+  const flush = async () => {
+    if (batch.length === 0) return;
+    const stored = await recordsApi.createBatch(batch);
+    const latest = unlocked();
+    const logins = [...latest.logins];
+    const categories = [...latest.categories];
+    for (const record of stored) {
+      if (record.type === 'LOGIN') {
+        logins.push({ ...(values.get(record.id) as LoginData), ...meta(record) });
+      } else {
+        categories.push({ ...(values.get(record.id) as CategoryData), ...meta(record) });
+      }
+    }
+    set({
+      ...latest,
+      logins: sortLogins(logins),
+      categories: categories.sort((a, b) => a.name.localeCompare(b.name)),
+    });
+    batch = [];
+    bytes = 0;
+  };
+  for (const item of items) {
+    // Base64 grows data by a third; the estimate only needs to be on the safe side.
+    const size = Math.ceil((item.blob.ciphertext.length + item.blob.nonce.length) * 1.4) + 200;
+    if (batch.length === BATCH_COUNT || bytes + size > BATCH_BYTES) await flush();
+    batch.push(item);
+    bytes += size;
+  }
+  await flush();
+
+  return { logins: newLogins.length, categories: newCategories.length };
 }
 
 /** After a master password change the DEK is the same; only the key version moved on. */

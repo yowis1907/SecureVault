@@ -26,6 +26,14 @@ export class CryptoFormatError extends Error {
   override readonly name: string = 'CryptoFormatError';
 }
 
+/** A backup file failed authentication: wrong passphrase, or the file was damaged or altered. */
+export class BackupOpenError extends Error {
+  override readonly name = 'BackupOpenError';
+  constructor() {
+    super('The backup passphrase is incorrect, or the file is damaged.');
+  }
+}
+
 /** Argon2id could not run, for example because the device ran out of memory. */
 export class KeyDerivationError extends Error {
   override readonly name = 'KeyDerivationError';

@@ -15,6 +15,7 @@ Built with Spring Boot, React, and PostgreSQL as a security engineering project.
 - **Vault tools.** Search, categories, tags, favorites, a password generator, and local strength estimates.
 - **Security overview.** Weak, reused, old, and empty passwords, found on your device without sending anything out.
 - **Locking.** Auto-lock after inactivity, a countdown in the header that locks on click, and locking across tabs.
+- **Encrypted backup.** Download the whole vault as a file sealed with a separate backup passphrase, and import it into any vault. The file is made and opened on your device.
 - **Account controls.** Session list with sign-out, account password change, vault reset, and account deletion.
 - **Light and dark themes,** laid out for phone, tablet, and desktop.
 
@@ -101,13 +102,13 @@ npm ci && npx playwright test
 
 ### Test status
 
-Last run locally on 2026-11-11:
+Last run locally on 2026-11-22:
 
 | Suite | Result |
 |---|---|
 | Backend unit and integration | 104 tests pass |
-| Frontend unit and component | 171 tests pass |
-| End-to-end in a real browser | 3 tests pass |
+| Frontend unit and component | 187 tests pass |
+| End-to-end in a real browser | 4 tests pass |
 
 The end-to-end journey puts a unique marker in the master password and every entry field, then fails if any marker appears in network traffic, a database row, or a log.
 
@@ -134,7 +135,7 @@ docs/       Architecture, API, database, audit, decision records
 
 ## Not built yet
 
-Encrypted backup export and import, sharing, two-factor sign-in, a browser extension, and rotation of the data encryption key.
+Sharing, two-factor sign-in, a browser extension, and rotation of the data encryption key.
 
 ## License
 

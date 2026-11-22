@@ -8,6 +8,7 @@ Playwright tests that run against the full Docker Compose stack: nginx with the 
 - **The server never sees vault secrets.** Each run uses unique canary values for the master password and every entry field. The test fails if any canary appears in a request URL, request body, or response body, in any database row (as text or as PostgreSQL's hex form of `bytea`), or in the API and nginx logs.
 - **The scans can find things.** Positive controls check that the account password does appear in the sign-in request and that the email address does appear in the database, as designed.
 - **Locking reaches every tab,** and a wrong master password is refused.
+- **Backups work end to end:** the file downloads under the production CSP, contains no readable secrets, refuses a wrong passphrase, and restores into a different account.
 
 All accounts and passwords are generated per run. No real credentials are used.
 
@@ -35,7 +36,7 @@ PW_CHANNEL=msedge npx playwright test
 
 `PW_CHANNEL=msedge` uses the Edge browser that comes with Windows. On other systems, run `npx playwright install chromium` once and leave `PW_CHANNEL` unset.
 
-Registration is limited to 5 per hour per IP, and each run registers 3 accounts. To run again within the hour, restart the API, which resets its in-memory limits:
+Registration is limited to 5 per hour per IP, and each run registers 5 accounts, the whole allowance. To run again within the hour, restart the API, which resets its in-memory limits:
 
 ```bash
 docker compose --env-file .env.example restart api

@@ -44,6 +44,21 @@ interface RecordMeta {
 export type LoginEntry = LoginData & RecordMeta;
 export type Category = CategoryData & RecordMeta;
 
+/**
+ * What a backup file contains once decrypted. Category IDs are only references inside the file;
+ * import gives every item a new ID.
+ */
+export const backupContentsSchema = z.object({
+  schema: z.literal(1),
+  exportedAt: z.iso.datetime(),
+  categories: z
+    .array(z.object({ ref: z.string().max(100), name: z.string().min(1).max(100) }))
+    .max(5000),
+  logins: z.array(loginDataSchema.extend({ categoryId: z.string().max(100).nullable() })).max(5000),
+});
+
+export type BackupContents = z.infer<typeof backupContentsSchema>;
+
 export const DEFAULT_SETTINGS: VaultSettings = {
   schema: 1,
   autoLockMinutes: 5,

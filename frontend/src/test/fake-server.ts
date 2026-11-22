@@ -185,6 +185,26 @@ export const handlers = [
     return HttpResponse.json(record, { status: 201 });
   }),
 
+  http.post('/api/v1/vault/records/batch', async ({ request }) => {
+    const user = requireUser();
+    if (user instanceof Response) return user;
+    const body = (await request.json()) as {
+      records: Omit<StoredRecord, 'version' | 'createdAt' | 'updatedAt'>[];
+    };
+    if (body.records.length === 0 || body.records.length > 200)
+      return problem(400, 'VALIDATION_FAILED');
+    if (body.records.some((r) => user.records.has(r.id))) return problem(409, 'RECORD_ID_CONFLICT');
+    if (user.records.size + body.records.length > 5000) return problem(422, 'QUOTA_EXCEEDED');
+    const created = body.records.map((r) => ({
+      ...r,
+      version: 1,
+      createdAt: now(),
+      updatedAt: now(),
+    }));
+    for (const r of created) user.records.set(r.id, r);
+    return HttpResponse.json({ records: created }, { status: 201 });
+  }),
+
   http.put('/api/v1/vault/records/:id', async ({ request, params }) => {
     const user = requireUser();
     if (user instanceof Response) return user;

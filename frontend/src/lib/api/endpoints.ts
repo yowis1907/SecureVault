@@ -222,6 +222,14 @@ export const records = {
       await request<RecordWire>('PUT', `/vault/records/${id}`, { version, ...blobToWire(blob) }),
     );
   },
+  /** All or nothing: the server stores every record in the batch or none of them. */
+  async createBatch(
+    items: { id: string; type: RecordType; blob: EncryptedBlob }[],
+  ): Promise<StoredRecord[]> {
+    const body = { records: items.map((i) => ({ id: i.id, type: i.type, ...blobToWire(i.blob) })) };
+    const created = await request<{ records: RecordWire[] }>('POST', '/vault/records/batch', body);
+    return created.records.map(recordFromWire);
+  },
   remove: (id: string) => request<undefined>('DELETE', `/vault/records/${id}`),
 };
 

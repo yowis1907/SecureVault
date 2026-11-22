@@ -6,6 +6,7 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
+- **Encrypted backup.** Export the vault to a file encrypted with a separate backup passphrase (Argon2id, HKDF label `securevault/v1/backup`, AES-256-GCM with the header authenticated), and import it into any vault under new IDs through the batch endpoint. Plaintext export is not offered.
 - **Documentation and screenshots (Phase 7).** README with screenshots captured from the running app, security architecture overview, security policy, contributing guide, license, and this changelog.
 - **Security audit (Phase 6).** Self-review with probes against the running stack and a tested, reviewed, or accepted status for each of the 39 threat scenarios. See `docs/SECURITY_AUDIT.md`.
 - **End-to-end tests (Phase 5).** Playwright journey against the full Docker stack, with canary scans of network traffic, database rows, and logs; cross-tab locking test.
@@ -27,6 +28,5 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Known gaps
 
-- Encrypted backup export and import is not built.
 - The CI workflows have not run.
 - See "Accepted and open" in `docs/SECURITY_AUDIT.md`.

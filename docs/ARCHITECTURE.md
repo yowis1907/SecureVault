@@ -236,7 +236,7 @@ Residual risks:
 
 ### 5.8 Encrypted backup
 
-The export is a JSON file with a header containing format version, KDF parameters, salt, and nonce, followed by one ciphertext. The key comes from a dedicated backup passphrase through Argon2id and HKDF with `info = "securevault/v1/backup"`. The header's canonical JSON is included in the AAD. Import decrypts locally, re-encrypts every record under the current DEK with new IDs, and uploads through the batch endpoint. Plaintext export is deliberately not offered.
+The export is a JSON file with a header containing format version, KDF parameters, salt, and nonce, followed by one ciphertext. The file is `{ "header": { "format": "securevault-backup", "version": 1, "kdf": {...}, "nonce": "..." }, "ciphertext": "..." }`. The canonical header is rebuilt from the parsed values in a fixed key order, so key order in the file does not matter but every value does. The contents are padded like records, up to 64 MiB. The key comes from a dedicated backup passphrase through Argon2id and HKDF with `info = "securevault/v1/backup"`. The header's canonical JSON is included in the AAD. Import decrypts locally, re-encrypts every record under the current DEK with new IDs, and uploads through the batch endpoint. Plaintext export is deliberately not offered.
 
 ### 5.9 Vault lifecycle in memory
 

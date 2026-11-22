@@ -55,7 +55,7 @@ Test gaps closed in this phase: clipboard clearing (delay, restart, clear on loc
 | F | Trusted Types are not enforced | Not evaluated in a browser. The Web Worker URL would need a policy first |
 | G | The Argon2id cost was measured on one laptop only (223 ms) | No phone was available |
 | H | The research paper behind ARCHITECTURE section 5.11 was not read in full | The PDF could not be downloaded on two attempts. The section relies on the abstract and the authors' summary |
-| I | Encrypted backup export and import is not built | A "Should" item; scenario 35 does not apply yet |
+| I | Encrypted backup was added on 2026-11-22, after this audit | Tested (see scenario 35), but not part of the Phase 6 review |
 | J | The account, settings, and security screens have no component tests of their own | Their logic is unit-tested and they were exercised in a browser |
 | K | The `prod` profile was never started | Its startup check is unit-tested only |
 | L | Rollback or deletion of records by a malicious server is not detected | Known design limit, scenario 10 |
@@ -100,7 +100,7 @@ Tested means an automated test exercises the mitigation. Reviewed means it was c
 | 32 Same password for account and vault | Tested, with residual | `App.test.tsx`; the email reset flow cannot check |
 | 33 Master password typed into sign-in | Accepted | Reduced by wording only |
 | 34 Forgotten master password | Tested | Vault reset in `VaultIT` |
-| 35 Backup passphrase | Not applicable | Risk I |
+| 35 Backup passphrase | Tested, with residual | `crypto/backup.test.ts`, `vault-session/backup.test.ts`, `e2e/tests/backup.spec.ts`. A weak passphrase on a leaked file can still be guessed |
 | 36 Compromised package | Partly | Lockfiles, exact crypto pin, `npm audit`; no Maven scan |
 | 37 Secrets in Git | Partly | `.env` ignored; manual scans before each commit; gitleaks has not run |
 | 38 Insecure production settings | Partly | Risk K |

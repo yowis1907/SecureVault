@@ -135,7 +135,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 | 32 | Same password used for account and vault | Client comparison at registration and on changes (ARCHITECTURE 5.7) | The email reset flow cannot perform the check, so it relies on a warning |
 | 33 | Master password typed into the login form | Distinct wording and design | Cannot be fully prevented; would reach the server over TLS |
 | 34 | Forgotten master password | Prominent warnings; encrypted backups | **Permanent data loss, by design** |
-| 35 | Lost or weak backup passphrase | Strength check; Argon2id; clear warnings | A weak passphrase on a leaked file can be guessed |
+| 35 | Lost or weak backup passphrase | Strength check on export; Argon2id at the vault's cost; separate HKDF label; header authenticated, so its KDF settings cannot be weakened; warnings in the UI | A weak passphrase on a leaked file can be guessed |
 
 ### Supply chain and operations
 

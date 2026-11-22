@@ -4,6 +4,7 @@ import {
   KeyDerivationError,
   PayloadTooLargeError,
   UnlockError,
+  BackupOpenError,
 } from '../crypto/errors';
 import { ApiError } from './api/client';
 
@@ -13,6 +14,9 @@ import { ApiError } from './api/client';
  */
 export function messageFor(error: unknown): string {
   if (error instanceof UnlockError) return 'That master password is incorrect.';
+  if (error instanceof BackupOpenError) {
+    return 'The backup passphrase is incorrect, or the file is damaged.';
+  }
   if (error instanceof KeyDerivationError) {
     return 'Your device ran out of memory while deriving the key. Close other tabs and try again.';
   }

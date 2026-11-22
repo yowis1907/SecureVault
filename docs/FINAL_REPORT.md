@@ -1,6 +1,6 @@
 # SecureVault Final Report
 
-**Date:** 2026-11-11. Covers Phases 0 to 7.
+**Date:** 2026-11-11, updated 2026-11-22 for encrypted backup. Covers Phases 0 to 7.
 
 SecureVault is a working zero-knowledge password manager with tested security properties and documented limits. It is not production-ready: it has had no independent security assessment, has never been deployed, and should not hold real credentials.
 
@@ -15,6 +15,7 @@ SecureVault is a working zero-knowledge password manager with tested security pr
 | Tools | Password generator; local strength analysis; security overview with weak, reused, old, and empty passwords and recent activity |
 | Locking | Configurable auto-lock, header countdown, cross-tab lock, lock on session end |
 | Account | Session list and sign-out, vault reset, account deletion, settings stored encrypted |
+| Backup | Export to a file sealed with a separate backup passphrase; import into any vault under new IDs |
 | Interface | 12 required screens plus email-link pages; light and dark themes; phone, tablet, and desktop layouts |
 | Server | Spring Boot API with server-side sessions, CSRF protection, origin checks, step-up confirmation, rate limits, uniform error format, purge jobs |
 | Operations | Docker Compose stack behind nginx with a strict Content Security Policy; Flyway migrations; CI workflows |
@@ -22,15 +23,15 @@ SecureVault is a working zero-knowledge password manager with tested security pr
 
 ## Tests actually run
 
-All on 2026-11-11, on the final code, on a Windows 11 development machine.
+All on the final code, on a Windows 11 development machine. Last run 2026-11-22, after encrypted backup was added.
 
 | Suite | Command | Result |
 |---|---|---|
 | Backend unit | `./mvnw verify` | 13 pass |
 | Backend integration, PostgreSQL 18 through Testcontainers | `./mvnw verify` | 91 pass |
-| Frontend unit and component | `npm test` | 171 pass |
+| Frontend unit and component | `npm test` | 187 pass |
 | Frontend lint, strict types, format, build | `npm run lint`, `typecheck`, `format:check`, `build` | Pass |
-| End-to-end in Edge against the Docker stack | `npx playwright test` | 3 pass |
+| End-to-end in Edge against the Docker stack | `npx playwright test` | 4 pass |
 | Clean clone: no-cache image build, healthy stack, smoke checks, end-to-end | See below | Pass |
 | `npm audit`, production dependencies | `npm audit --omit=dev` | 0 advisories |
 
@@ -53,7 +54,6 @@ Cross-implementation check for Argon2id: Bouncy Castle, `hash-wasm`, and `@noble
 
 ## Not built
 
-- Encrypted backup export and import, listed as a "Should" in the plan.
 - By design for version 1: sharing, two-factor sign-in, browser extension, mobile app, data-key rotation, importing from other managers.
 
 ## Limitations
@@ -101,4 +101,4 @@ Each has a regression test unless noted.
 2. Push to GitHub and get every CI job, CodeQL, and secret scanning passing.
 3. Deploy behind TLS with the `prod` profile, HSTS, and real SMTP, and re-run the end-to-end suite there.
 4. Benchmark Argon2id on phones and adjust if unlock is too slow.
-5. Build encrypted backup, so a lost device does not mean a lost vault.
+5. Get an independent review of the backup format too: it was added after the Phase 6 self-review.

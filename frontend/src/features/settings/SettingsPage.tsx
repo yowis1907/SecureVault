@@ -13,6 +13,7 @@ import { messageFor } from '../../lib/errors';
 import { estimateStrength } from '../../lib/strength';
 import { getThemePreference, setThemePreference, type ThemePreference } from '../../lib/theme';
 import { useUnlockedVault } from '../../vault-session/hooks';
+import { BackupSection } from './BackupSection';
 import { getArgon2, saveSettings, setKeyVersion } from '../../vault-session/session';
 
 const AUTO_LOCK = [1, 2, 5, 10, 15, 30, 60];
@@ -263,6 +264,12 @@ export function SettingsPage() {
       </Section>
       <Section title="Master password" description="Unlocks your vault. Never sent to the server.">
         <MasterPassword />
+      </Section>
+      <Section
+        title="Backup"
+        description="An encrypted file you keep yourself, for a lost device or a forgotten master password. Made and opened on this device."
+      >
+        <BackupSection />
       </Section>
     </div>
   );
