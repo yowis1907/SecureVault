@@ -14,6 +14,8 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     permissions:
+      # actions: read lets the CodeQL action look up its own workflow run.
+      actions: read
       contents: read
       security-events: write
     strategy:
@@ -27,3 +29,13 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: none
       - uses: github/codeql-action/analyze@f3bbb05694c2f74569081c28664c0866d64dec21 # v4.39.3
+        with:
+          # A private repository without code scanning cannot accept the results.
+          # There the analysis still runs and fails on errors, and the results are kept as a file.
+          upload: ${{ github.event.repository.private && 'never' || 'always' }}
+          output: sarif-results
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ github.event.repository.private }}
+        with:
+          name: codeql-${{ matrix.language }}
+          path: sarif-results
