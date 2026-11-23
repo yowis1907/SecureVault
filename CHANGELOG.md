@@ -6,6 +6,8 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
+- **Firefox end-to-end runs.** CI runs the end-to-end suite in Chromium and Firefox, each against its own stack.
+- **Backend dependency scan.** CI lists every runtime Maven dependency with CycloneDX and checks it against the OSV database.
 - **Encrypted backup.** Export the vault to a file encrypted with a separate backup passphrase (Argon2id, HKDF label `securevault/v1/backup`, AES-256-GCM with the header authenticated), and import it into any vault under new IDs through the batch endpoint. Plaintext export is not offered.
 - **Documentation and screenshots (Phase 7).** README with screenshots captured from the running app, security architecture overview, security policy, contributing guide, license, and this changelog.
 - **Security audit (Phase 6).** Self-review with probes against the running stack and a tested, reviewed, or accepted status for each of the 39 threat scenarios. See `docs/SECURITY_AUDIT.md`.
@@ -18,6 +20,7 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Security
 
+- Trusted Types are enforced by the CSP. One policy admits the Argon2 worker URL and nothing else; every other script sink refuses strings. Zod runs without its `new Function` optimization.
 - The CodeQL action was pinned to a commit that is not part of any `github/codeql-action` release, under a comment naming v4.39.3. It now uses the real v4.39.3 commit, and a new CI job checks that every pinned action SHA matches the release its comment names.
 - CI jobs ask only for the permissions they use: CodeQL reads its own run, and secret scanning reads a pull request's commits.
 - Control characters in an email no longer reach the database; they are rejected as invalid input.
