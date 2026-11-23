@@ -53,14 +53,15 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="relative flex min-h-dvh flex-col">
+      <div className="grid-field app-glow pointer-events-none fixed inset-0" aria-hidden="true" />
       <a
         href="#main"
         className="sr-only z-50 rounded-[var(--radius-control)] bg-surface px-3 py-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
       >
         Skip to content
       </a>
-      <header className="sticky top-0 z-30 border-b border-line bg-bg/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-30 border-b border-line/70 bg-bg/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
           <Wordmark to="/app" />
           <div className="flex items-center gap-2">
@@ -77,7 +78,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-6xl flex-1 gap-8 px-4 pb-24 md:pb-8">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-8 px-4 pb-24 md:pb-8">
         <nav aria-label="Main" className="sticky top-16 hidden h-fit w-48 shrink-0 py-6 md:block">
           <ul className="flex flex-col gap-0.5">
             {NAV.map(({ to, label, icon: Icon, end }) => (
@@ -87,14 +88,18 @@ export function AppShell() {
                   end={end}
                   className={({ isActive }) =>
                     clsx(
-                      'flex items-center gap-2.5 rounded-[var(--radius-control)] px-3 py-2 text-sm',
+                      'group flex items-center gap-2.5 rounded-[var(--radius-control)] px-3 py-2 text-sm transition-all duration-200',
                       isActive
-                        ? 'bg-surface font-semibold text-text shadow-[inset_2px_0_0_var(--sv-accent)]'
-                        : 'text-muted hover:bg-surface-2 hover:text-text',
+                        ? 'bg-surface font-semibold text-text shadow-[inset_2px_0_0_var(--sv-accent),0_0_24px_-12px_var(--sv-accent)]'
+                        : 'text-muted hover:translate-x-0.5 hover:bg-surface-2 hover:text-text',
                     )
                   }
                 >
-                  <Icon size={17} aria-hidden="true" />
+                  <Icon
+                    size={17}
+                    aria-hidden="true"
+                    className="transition-transform duration-200 group-hover:scale-110"
+                  />
                   {label}
                 </NavLink>
               </li>
@@ -111,7 +116,7 @@ export function AppShell() {
           </ul>
         </nav>
 
-        <main id="main" tabIndex={-1} className="min-w-0 flex-1 py-6 outline-none">
+        <main id="main" tabIndex={-1} className="rise min-w-0 flex-1 py-6 outline-none">
           {vault.damaged > 0 ? (
             <p
               role="alert"
@@ -129,7 +134,7 @@ export function AppShell() {
       {/* Phone navigation: a bottom bar, since a side rail does not fit. */}
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-line/70 bg-surface/80 backdrop-blur-xl md:hidden"
       >
         <ul className="grid grid-cols-6">
           {NAV.map(({ to, label, icon: Icon, end }) => (

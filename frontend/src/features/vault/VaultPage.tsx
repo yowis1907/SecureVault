@@ -154,8 +154,8 @@ export function VaultPage() {
             </p>
           ) : (
             <ul className="divide-y divide-line border-y border-line">
-              {visible.map((entry) => (
-                <EntryRow key={entry.id} entry={entry} selected={entry.id === id} />
+              {visible.map((entry, i) => (
+                <EntryRow key={entry.id} entry={entry} selected={entry.id === id} index={i} />
               ))}
             </ul>
           )}

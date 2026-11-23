@@ -76,6 +76,8 @@ Versions were checked against npm, Maven Central, and endoflife.date on 2026-11-
 | `hash-wasm` | **4.12.0, exact pin** | See below |
 | `@zxcvbn-ts/core` and language packs | 4.x | Local strength estimation, loaded lazily |
 | `lucide-react` | 1.71 | Icons. Toasts are our own `aria-live` region, since `sonner` injects styles |
+| `three` | 0.187.0 | The decorative 3D scene on the public pages, unlock, and the empty vault. Loaded lazily in its own chunk, never sees user data, renders nothing extra under reduced motion, and works under the CSP and Trusted Types (no `eval`, no HTML sinks) |
+| Bricolage Grotesque | 5.3 (`@fontsource-variable`) | Display face for headings only, self-hosted because `font-src 'self'`. Body text and secrets stay in Atkinson Hyperlegible |
 | Vitest, RTL, MSW, Playwright | 5.1, 16.3, 3.0, 1.65 | MSW and Playwright are dev-only |
 | `@noble/hashes` | 2.4 | **Dev-only**, used to cross-check Argon2id output |
 

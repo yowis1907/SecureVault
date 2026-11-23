@@ -1,4 +1,5 @@
 import { Copy, RefreshCw } from 'lucide-react';
+import { clsx } from 'clsx';
 import { useState } from 'react';
 import { StrengthMeter } from '../../components/StrengthMeter';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +11,7 @@ import {
   LENGTH_LIMITS,
   type GeneratorOptions,
 } from '../../lib/generator';
+import { useDecodeText, useTilt } from '../../lib/motion';
 import { copySecret } from '../../vault-session/clipboard';
 import { useUnlockedVault } from '../../vault-session/hooks';
 
@@ -25,6 +27,12 @@ export function GeneratorPage() {
   const [options, setOptions] = useState<GeneratorOptions>(DEFAULT_OPTIONS);
   const [password, setPassword] = useState(() => generatePassword(DEFAULT_OPTIONS));
   const selectedTypes = TYPES.filter(([key]) => options[key]).length;
+  // New passwords resolve out of random glyphs. Once settled, only the real text is in the DOM,
+  // so selecting and copying it by hand gets exactly the password.
+  const decoded = useDecodeText(password, 420);
+  const settled = decoded === password;
+  const [spins, setSpins] = useState(0);
+  const tilt = useTilt<HTMLDivElement>(4);
 
   function update(next: GeneratorOptions) {
     setOptions(next);
@@ -33,19 +41,26 @@ export function GeneratorPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Password generator</h1>
+      <p className="eyebrow">Local randomness</p>
+      <h1 className="mt-2 text-3xl font-bold">Password generator</h1>
       <p className="mt-1 text-sm text-muted">
         Generated on this device from the browser's cryptographic random source.
       </p>
 
-      <div className="mt-6 rounded-[var(--radius-panel)] border border-line bg-surface p-4 sm:p-5">
-        <output
-          aria-live="polite"
-          aria-label="Generated password"
-          className="secret block min-h-14 text-xl leading-snug sm:text-2xl"
-        >
+      <div ref={tilt} className="tilt glass mt-6 p-5 sm:p-6">
+        {/* Announced once per new password; the animated text below is visual only. */}
+        <output aria-live="polite" aria-label="Generated password" className="sr-only">
           {password}
         </output>
+        <p
+          aria-hidden="true"
+          className={clsx(
+            'secret tilt-pop min-h-14 text-xl leading-snug transition-colors duration-300 sm:text-2xl',
+            !settled && 'text-accent',
+          )}
+        >
+          {decoded}
+        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button
             onClick={() => {
@@ -70,9 +85,15 @@ export function GeneratorPage() {
             variant="secondary"
             onClick={() => {
               setPassword(generatePassword(options));
+              setSpins((n) => n + 1);
             }}
           >
-            <RefreshCw size={16} aria-hidden="true" /> Generate another
+            <RefreshCw
+              size={16}
+              aria-hidden="true"
+              className={clsx(spins > 0 && (spins % 2 ? 'spin-once-a' : 'spin-once-b'))}
+            />{' '}
+            Generate another
           </Button>
         </div>
         <div className="mt-4">

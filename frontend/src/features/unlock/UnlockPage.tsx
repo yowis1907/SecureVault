@@ -1,13 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { LockKeyhole } from 'lucide-react';
-import { useState, type SyntheticEvent } from 'react';
+import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
+import { useEffect, useState, type SyntheticEvent } from 'react';
+import { clsx } from 'clsx';
 import { Link, useLocation, useNavigate } from 'react-router';
+import { AuthBackdrop } from '../../components/layout/AuthLayout';
 import { Wordmark } from '../../components/layout/Wordmark';
+import { setSceneMode } from '../../components/scene/signal';
 import { Button } from '../../components/ui/Button';
 import { PasswordField } from '../../components/ui/Field';
 import { auth } from '../../lib/api/endpoints';
 import { useCurrentUser } from '../../lib/api/queries';
 import { messageFor } from '../../lib/errors';
+import { useReducedMotion } from '../../lib/motion';
 import { lock, unlock } from '../../vault-session/session';
 
 export function UnlockPage() {
@@ -18,6 +22,16 @@ export function UnlockPage() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [opened, setOpened] = useState(false);
+  const [shake, setShake] = useState(0);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(
+    () => () => {
+      setSceneMode('idle');
+    },
+    [],
+  );
   const from = (location.state as { from?: string } | null)?.from;
 
   async function submit(event: SyntheticEvent) {
@@ -28,12 +42,20 @@ export function UnlockPage() {
     }
     setBusy(true);
     setError(null);
+    setSceneMode('deriving');
     try {
       await unlock(password);
       setPassword('');
+      setOpened(true);
+      setSceneMode('open');
+      // A short beat so the vault visibly opens before the page changes.
+      if (!reducedMotion) await new Promise((r) => setTimeout(r, 420));
       void navigate(from?.startsWith('/app') ? from : '/app', { replace: true });
     } catch (e) {
+      setSceneMode('error');
+      setShake((n) => n + 1);
       setError(messageFor(e));
+      setSceneMode('idle');
     } finally {
       setBusy(false);
     }
@@ -50,7 +72,7 @@ export function UnlockPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <AuthBackdrop>
       <header className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
         <Wordmark />
         <button
@@ -61,18 +83,36 @@ export function UnlockPage() {
           Sign out
         </button>
       </header>
-      <main id="main" className="flex flex-1 items-start justify-center px-4 pt-[12vh]">
+      <main id="main" className="flex flex-1 items-start justify-center px-4 pt-[10vh] pb-12">
         <form
           noValidate
           onSubmit={(e) => void submit(e)}
-          className="flex w-full max-w-sm flex-col gap-5"
+          className={clsx(
+            'glass rise flex w-full max-w-sm flex-col gap-5 p-6 sm:p-8',
+            shake > 0 && (shake % 2 ? 'shake-a' : 'shake-b'),
+          )}
         >
           <div className="flex items-center gap-3">
-            <span className="flex size-11 items-center justify-center rounded-full border border-line bg-surface text-accent">
-              <LockKeyhole size={20} aria-hidden="true" />
+            <span
+              className={clsx(
+                'flex size-12 items-center justify-center rounded-full border text-accent transition-all duration-500',
+                opened
+                  ? 'scale-110 border-accent bg-accent-soft shadow-[0_0_30px_-4px_var(--sv-accent)]'
+                  : busy
+                    ? 'animate-pulse border-accent/60 bg-surface'
+                    : 'border-line bg-surface',
+              )}
+            >
+              {opened ? (
+                <LockKeyholeOpen size={22} aria-hidden="true" />
+              ) : (
+                <LockKeyhole size={22} aria-hidden="true" />
+              )}
             </span>
             <div>
-              <h1 className="text-xl font-semibold tracking-tight">Vault locked</h1>
+              <h1 className="display text-2xl font-bold">
+                {opened ? 'Vault open' : 'Vault locked'}
+              </h1>
               {me.data ? <p className="text-sm break-all text-muted">{me.data.email}</p> : null}
             </div>
           </div>
@@ -104,6 +144,6 @@ export function UnlockPage() {
           </Link>
         </form>
       </main>
-    </div>
+    </AuthBackdrop>
   );
 }
