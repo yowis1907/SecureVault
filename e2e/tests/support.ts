@@ -81,6 +81,28 @@ export function recordTraffic(context: BrowserContext) {
   };
 }
 
+/**
+ * Every Content Security Policy violation in any page of the context, Trusted Types included.
+ * The app should cause none: a violation means the browser blocked something the app tried.
+ */
+export async function recordCspViolations(context: BrowserContext) {
+  const violations: string[] = [];
+  await context.exposeBinding('__reportCspViolation', (_source, text: string) => {
+    violations.push(text);
+  });
+  await context.addInitScript(() => {
+    document.addEventListener('securitypolicyviolation', (event) => {
+      const report = (window as unknown as { __reportCspViolation: (text: string) => void })
+        .__reportCspViolation;
+      // sample names the sink and starts the blocked value, so a report says what was refused.
+      report(
+        `${event.effectiveDirective} blocked ${event.blockedURI || '(inline)'}: ${event.sample} at ${event.sourceFile}:${String(event.lineNumber)}`,
+      );
+    });
+  });
+  return violations;
+}
+
 /** Plain text, plus the hex form PostgreSQL uses for bytea, so both are searched. */
 export function forms(value: string): string[] {
   return [value, Buffer.from(value, 'utf8').toString('hex')];

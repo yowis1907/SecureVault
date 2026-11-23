@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { newAccount, register, signIn, unlock } from './flows';
-import { apiLogs, canary, databaseDump, forms, recordTraffic } from './support';
+import {
+  apiLogs,
+  canary,
+  databaseDump,
+  forms,
+  recordCspViolations,
+  recordTraffic,
+} from './support';
 
 /**
  * The core journey from the test plan, in a real browser against the real stack, with a unique
@@ -13,6 +20,7 @@ test('register, store, refresh, edit, and delete without the server seeing any s
   context,
 }) => {
   const traffic = recordTraffic(context);
+  const cspViolations = await recordCspViolations(context);
   const account = newAccount();
   const entry = {
     title: canary('title'),
@@ -29,6 +37,20 @@ test('register, store, refresh, edit, and delete without the server seeing any s
   await signIn(page, account);
   await unlock(page, account);
   await expect(page.getByRole('heading', { name: 'Your vault is empty' })).toBeVisible();
+
+  // Trusted Types are enforced: the Argon2 worker started, and a plain string at a script
+  // sink is refused. Browsers without Trusted Types skip only the refusal check.
+  const sink = await page.evaluate(() => {
+    if (!('trustedTypes' in window)) return 'no trusted types';
+    try {
+      document.createElement('div').innerHTML = '<b>x</b>';
+      return 'allowed';
+    } catch (error) {
+      return (error as Error).name;
+    }
+  });
+  test.info().annotations.push({ type: 'trusted types', description: sink });
+  expect(['TypeError', 'no trusted types']).toContain(sink);
 
   // Create.
   await page.getByRole('link', { name: 'Add your first login' }).click();
@@ -106,4 +128,8 @@ test('register, store, refresh, edit, and delete without the server seeing any s
   for (const secret of [...secrets, account.accountPassword]) {
     expect(logs.includes(secret), `logs contain ${secret.slice(0, 14)}`).toBe(false);
   }
+
+  // The deliberate innerHTML probe above is the only violation allowed.
+  expect(cspViolations.filter((v) => !v.startsWith('require-trusted-types-for'))).toEqual([]);
+  expect(cspViolations.length, cspViolations.join('\n')).toBeLessThanOrEqual(1);
 });

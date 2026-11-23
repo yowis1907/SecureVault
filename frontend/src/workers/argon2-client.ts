@@ -1,6 +1,9 @@
 import type { Argon2idFunction } from '../crypto/argon2';
 import { KeyDerivationError } from '../crypto/errors';
+import { trustedWorkerUrl } from '../lib/trusted-types';
 import type { Argon2Request, Argon2Response } from './argon2-protocol';
+// Vite builds the worker as its own file and gives its URL here.
+import argon2WorkerUrl from './argon2.worker.ts?worker&url';
 
 /** The part of the Worker interface this client uses, so tests can supply a stand-in. */
 export interface Argon2WorkerLike {
@@ -11,7 +14,8 @@ export interface Argon2WorkerLike {
 }
 
 function startWorker(): Argon2WorkerLike {
-  return new Worker(new URL('./argon2.worker.ts', import.meta.url), { type: 'module' });
+  // The URL passes through the Trusted Types policy, which the CSP requires for workers.
+  return new Worker(trustedWorkerUrl(argon2WorkerUrl), { type: 'module' });
 }
 
 /**
