@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { newAccount, register, signIn, unlock } from './flows';
 
+// The wrong-master-password check lives in two-factor.spec.ts, which shares its account.
+
 /** Behaviour only a real browser can show: cross-tab locking and session handling. */
 
 test('locking in one tab locks every other tab', async ({ context }) => {
@@ -20,14 +22,4 @@ test('locking in one tab locks every other tab', async ({ context }) => {
 
   await expect(first.getByRole('heading', { name: 'Vault locked' })).toBeVisible();
   await expect(second.getByRole('heading', { name: 'Vault locked' })).toBeVisible();
-});
-
-test('a wrong master password is refused and the vault stays locked', async ({ page }) => {
-  const account = newAccount();
-  await register(page, account);
-  await signIn(page, account);
-  await page.getByLabel('Master password', { exact: true }).fill(`${account.masterPassword}x`);
-  await page.getByRole('button', { name: 'Unlock' }).click();
-  await expect(page.getByText('That master password is incorrect.')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Vault locked' })).toBeVisible();
 });

@@ -18,6 +18,7 @@
 		<spotless.version>3.11.0</spotless.version>
 		<bouncycastle.version>1.87</bouncycastle.version>
 		<bucket4j.version>8.22.0</bucket4j.version>
+		<java-otp.version>1.0.0</java-otp.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -67,6 +68,12 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
 			<version>${bouncycastle.version}</version>
+		</dependency>
+		<!-- TOTP (RFC 6238) for two-factor sign-in, built on the JDK's own HMAC. -->
+		<dependency>
+			<groupId>com.eatthepath</groupId>
+			<artifactId>java-otp</artifactId>
+			<version>${java-otp.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>

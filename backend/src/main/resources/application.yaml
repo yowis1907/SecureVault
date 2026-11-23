@@ -43,6 +43,10 @@ securevault:
   # Used for links in emails. Never taken from the request's Host header.
   public-url: http://localhost:3000
   mail-from: SecureVault <no-reply@securevault.local>
+  mfa:
+    # 32 random bytes, base64, that encrypt TOTP secrets at rest. From the environment only: no
+    # default here. Without it, outside prod, a temporary key is used (see MfaSecretCipher).
+    key: ${SECUREVAULT_MFA_KEY:}
   security:
     # The cookie is HttpOnly, SameSite=Strict, Path=/ (see SecurityConfig). Local HTTP cannot use
     # Secure or the __Host- prefix; the prod profile sets both and checks them at startup.

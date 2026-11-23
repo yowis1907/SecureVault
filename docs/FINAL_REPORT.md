@@ -53,7 +53,7 @@ Cross-implementation check for Argon2id: Bouncy Castle, `hash-wasm`, and `@noble
 
 ## Not built
 
-- By design for version 1: sharing, two-factor sign-in, browser extension, mobile app, data-key rotation, importing from other managers.
+- By design for version 1: sharing, passkeys, browser extension, mobile app, data-key rotation, importing from other managers.
 
 ## Limitations
 

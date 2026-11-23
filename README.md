@@ -16,6 +16,7 @@ Built with Spring Boot, React, and PostgreSQL as a security engineering project.
 - **Security overview.** Weak, reused, old, and empty passwords, found on your device without sending anything out.
 - **Locking.** Auto-lock after inactivity, a countdown in the header that locks on click, and locking across tabs.
 - **Encrypted backup.** Download the whole vault as a file sealed with a separate backup passphrase, and import it into any vault. The file is made and opened on your device.
+- **Two-factor sign-in.** Optional TOTP codes from any authenticator app at sign-in, with ten one-time recovery codes. The secret is stored encrypted under a server key that is not in the database.
 - **Account controls.** Session list with sign-out, account password change, vault reset, and account deletion.
 - **Light and dark themes,** laid out for phone, tablet, and desktop.
 
@@ -64,7 +65,7 @@ You need Docker Desktop. From the repository root:
 cp .env.example .env
 ```
 
-Set `POSTGRES_PASSWORD` in `.env`, then:
+Set `POSTGRES_PASSWORD` in `.env`, and replace `SECUREVAULT_MFA_KEY` with your own key (`openssl rand -base64 32`). The example key is only for local testing, and the `prod` profile refuses to start with it. Then:
 
 ```bash
 docker compose up --build --wait
@@ -110,12 +111,12 @@ npm ci && npx playwright test
 
 ### Test status
 
-Last run locally on 2026-11-23 (backend on 2026-11-22; its code has not changed since):
+Last run locally on 2026-11-23:
 
 | Suite | Result |
 |---|---|
-| Backend unit and integration | 104 tests pass |
-| Frontend unit and component | 191 tests pass |
+| Backend unit and integration | 125 tests pass |
+| Frontend unit and component | 196 tests pass |
 | End-to-end in a real browser | 4 tests pass in Edge locally, and in Chromium and Firefox in CI |
 
 The end-to-end journey puts a unique marker in the master password and every entry field, then fails if any marker appears in network traffic, a database row, or a log.
@@ -143,7 +144,7 @@ docs/       Architecture, API, database, audit, decision records
 
 ## Not built yet
 
-Sharing, two-factor sign-in, a browser extension, and rotation of the data encryption key.
+Sharing, passkeys (WebAuthn), a browser extension, and rotation of the data encryption key.
 
 ## License
 

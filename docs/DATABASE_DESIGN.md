@@ -139,6 +139,12 @@ The 5,000-record quota is checked in a transaction that first locks the user's `
 
 Issuing a new token consumes earlier unconsumed tokens of the same purpose for that user. The raw token exists only in the email. Consumption uses a single conditional `UPDATE ... WHERE consumed_at IS NULL AND expires_at > now()`, which makes it safe when two requests race.
 
+### `user_mfa` and `mfa_recovery_codes` (V7)
+
+`user_mfa`: one row per user who has started or finished two-factor setup. `user_id` (PK, FK to `users` ON DELETE CASCADE), `secret_ciphertext` (`bytea`, 36 bytes: a 20-byte TOTP secret plus the GCM tag), `secret_nonce` (`bytea`, 12 bytes), `enabled_at` (NULL until confirmed), `last_used_step` (`bigint`, the 30-second step of the last accepted code, to refuse replays), `created_at`. The secret is encrypted with AES-256-GCM under `SECUREVAULT_MFA_KEY` from the environment, with the user ID as associated data (ADR 0015).
+
+`mfa_recovery_codes`: `id` (PK), `user_id` (FK ON DELETE CASCADE), `code_hash` (`bytea`, 32 bytes, SHA-256, unique per user), `used_at` (NULL until spent), `created_at`. Spending a code is one conditional `UPDATE ... WHERE used_at IS NULL`.
+
 ### `audit_events`
 
 | Column | Type | Constraints |
@@ -189,6 +195,7 @@ Scheduled purge jobs run in the application. Database backups are outside this p
 | `V4__create_one_time_tokens.sql` | `one_time_tokens` |
 | `V5__create_audit_events.sql` | `audit_events` |
 | `V6__create_spring_session.sql` | Spring Session tables, copied from the matching release's PostgreSQL schema |
+| `V7__create_mfa.sql` | `user_mfa` and `mfa_recovery_codes` |
 
 ## Why these database choices
 

@@ -128,8 +128,21 @@ export const auth = {
   verifyEmail: (token: string) => request<undefined>('POST', '/auth/verify-email', { token }),
   resendVerification: (email: string) =>
     request<undefined>('POST', '/auth/verification/resend', { email }),
-  async login(email: string, accountPassword: string): Promise<User> {
-    const user = await request<User>('POST', '/auth/login', { email, accountPassword });
+  /**
+   * The user, or { mfaRequired: true } when two-factor sign-in is on. In that case no session
+   * exists yet and the code goes to loginMfa.
+   */
+  async login(email: string, accountPassword: string): Promise<User | MfaChallenge> {
+    const result = await request<User | MfaChallenge>('POST', '/auth/login', {
+      email,
+      accountPassword,
+    });
+    // Signing in rotates the CSRF token; a pending second step keeps the old one.
+    if (!('mfaRequired' in result)) await refreshCsrfToken();
+    return result;
+  },
+  async loginMfa(code: string): Promise<User> {
+    const user = await request<User>('POST', '/auth/login/mfa', { code });
     await refreshCsrfToken();
     return user;
   },
@@ -235,7 +248,32 @@ export const records = {
 
 // --- Account and activity ---
 
+export interface MfaChallenge {
+  mfaRequired: true;
+}
+
+export interface MfaStatus {
+  enabled: boolean;
+  recoveryCodesRemaining: number;
+}
+
+export interface MfaSetup {
+  secret: string;
+  otpauthUri: string;
+}
+
 export const account = {
+  mfaStatus: () => request<MfaStatus>('GET', '/account/mfa'),
+  mfaSetup: (accountPassword: string) =>
+    request<MfaSetup>('POST', '/account/mfa/setup', { accountPassword }),
+  mfaEnable: (code: string) =>
+    request<{ recoveryCodes: string[] }>('POST', '/account/mfa/enable', { code }),
+  mfaDisable: (accountPassword: string, code: string) =>
+    request<undefined>('POST', '/account/mfa/disable', { accountPassword, code }),
+  mfaRecoveryCodes: (accountPassword: string) =>
+    request<{ recoveryCodes: string[] }>('POST', '/account/mfa/recovery-codes', {
+      accountPassword,
+    }),
   changePassword: (currentAccountPassword: string, newAccountPassword: string) =>
     request<undefined>('PUT', '/account/password', { currentAccountPassword, newAccountPassword }),
   sessions: () => request<{ sessions: SessionInfo[] }>('GET', '/account/sessions'),

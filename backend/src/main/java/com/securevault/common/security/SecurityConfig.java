@@ -42,6 +42,7 @@ class SecurityConfig {
   static final String CSRF_ENDPOINT = "/api/v1/auth/csrf";
   static final String[] PUBLIC_POST_ENDPOINTS = {
     "/api/v1/auth/login",
+    "/api/v1/auth/login/mfa",
     "/api/v1/auth/register",
     "/api/v1/auth/verify-email",
     "/api/v1/auth/verification/resend",

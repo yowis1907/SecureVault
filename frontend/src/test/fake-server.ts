@@ -34,6 +34,8 @@ interface User {
   verified: boolean;
   vault: Vault;
   records: Map<string, StoredRecord>;
+  /** Two-factor state. The fake accepts fake.mfaCode instead of computing real TOTP codes. */
+  mfa?: { enabled: boolean; recovery: string[] };
 }
 
 const CSRF = 'csrf-test-token';
@@ -42,11 +44,16 @@ export const fake = {
   users: new Map<string, User>(),
   signedIn: null as string | null,
   verificationTokens: new Map<string, string>(),
+  /** The one authenticator code the fake accepts. */
+  mfaCode: '135790',
+  /** User whose password step passed and who still owes a code. */
+  pendingMfa: null as string | null,
   /** Every request: method, path, and raw body. */
   requests: [] as { method: string; path: string; body: string }[],
   reset() {
     this.users.clear();
     this.signedIn = null;
+    this.pendingMfa = null;
     this.verificationTokens.clear();
     this.requests = [];
   },
@@ -121,8 +128,72 @@ export const handlers = [
     if (!user || user.accountPassword !== accountPassword)
       return problem(401, 'INVALID_CREDENTIALS');
     if (!user.verified) return problem(403, 'EMAIL_NOT_VERIFIED');
+    if (user.mfa?.enabled) {
+      fake.pendingMfa = user.id;
+      return HttpResponse.json({ mfaRequired: true });
+    }
     fake.signedIn = user.id;
     return HttpResponse.json({ id: user.id, email: user.email, createdAt: now() });
+  }),
+
+  http.post('/api/v1/auth/login/mfa', async ({ request }) => {
+    const { code } = (await request.json()) as { code: string };
+    const user = [...fake.users.values()].find((u) => u.id === fake.pendingMfa);
+    if (!user?.mfa) return problem(401, 'MFA_CHALLENGE_EXPIRED');
+    const normalized = code.replace(/[s-]/g, '').toUpperCase();
+    const recovery = user.mfa.recovery.indexOf(normalized);
+    if (normalized !== fake.mfaCode && recovery < 0) return problem(401, 'INVALID_MFA_CODE');
+    if (recovery >= 0) user.mfa.recovery.splice(recovery, 1);
+    fake.pendingMfa = null;
+    fake.signedIn = user.id;
+    return HttpResponse.json({ id: user.id, email: user.email, createdAt: now() });
+  }),
+
+  http.get('/api/v1/account/mfa', () => {
+    const user = requireUser();
+    if (user instanceof Response) return user;
+    const enabled = user.mfa?.enabled ?? false;
+    return HttpResponse.json({
+      enabled,
+      recoveryCodesRemaining: enabled ? (user.mfa?.recovery.length ?? 0) : 0,
+    });
+  }),
+
+  http.post('/api/v1/account/mfa/setup', async ({ request }) => {
+    const user = requireUser();
+    if (user instanceof Response) return user;
+    const { accountPassword } = (await request.json()) as { accountPassword: string };
+    if (accountPassword !== user.accountPassword) return problem(403, 'STEP_UP_FAILED');
+    if (user.mfa?.enabled) return problem(409, 'MFA_STATE_CONFLICT');
+    user.mfa = { enabled: false, recovery: [] };
+    const secret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
+    return HttpResponse.json({
+      secret,
+      otpauthUri: `otpauth://totp/SecureVault:${encodeURIComponent(user.email)}?secret=${secret}&issuer=SecureVault`,
+    });
+  }),
+
+  http.post('/api/v1/account/mfa/enable', async ({ request }) => {
+    const user = requireUser();
+    if (user instanceof Response) return user;
+    const { code } = (await request.json()) as { code: string };
+    if (!user.mfa || user.mfa.enabled) return problem(409, 'MFA_STATE_CONFLICT');
+    if (code !== fake.mfaCode) return problem(401, 'INVALID_MFA_CODE');
+    const recovery = Array.from({ length: 10 }, (_, i) => `ABCD${String(i).padStart(4, '2')}WXYZ`);
+    user.mfa = { enabled: true, recovery: [...recovery] };
+    return HttpResponse.json({
+      recoveryCodes: recovery.map((c) => `${c.slice(0, 4)}-${c.slice(4, 8)}-${c.slice(8)}`),
+    });
+  }),
+
+  http.post('/api/v1/account/mfa/disable', async ({ request }) => {
+    const user = requireUser();
+    if (user instanceof Response) return user;
+    const { accountPassword, code } = (await request.json()) as Record<string, string>;
+    if (accountPassword !== user.accountPassword) return problem(403, 'STEP_UP_FAILED');
+    if (code !== fake.mfaCode) return problem(401, 'INVALID_MFA_CODE');
+    user.mfa = undefined;
+    return new HttpResponse(null, { status: 204 });
   }),
 
   http.post('/api/v1/auth/logout', () => {

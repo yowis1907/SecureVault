@@ -12,6 +12,9 @@ import type { LoginEntry } from '../../vault-session/model';
 const EVENT_TEXT: Record<string, string> = {
   LOGIN_SUCCEEDED: 'Signed in',
   ACCOUNT_PASSWORD_CHANGED: 'Account password changed',
+  MFA_ENABLED: 'Two-factor sign-in turned on',
+  MFA_DISABLED: 'Two-factor sign-in turned off',
+  MFA_RECOVERY_CODE_USED: 'Signed in with a recovery code',
   ACCOUNT_PASSWORD_RESET: 'Account password reset by email',
   MASTER_PASSWORD_CHANGED: 'Master password changed',
   VAULT_RESET: 'Vault reset',

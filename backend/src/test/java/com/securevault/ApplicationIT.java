@@ -60,7 +60,7 @@ class ApplicationIT {
         jdbcTemplate.queryForObject(
             "SELECT count(*) FROM flyway_schema_history WHERE success AND version IS NOT NULL",
             Integer.class);
-    assertThat(applied).isEqualTo(6);
+    assertThat(applied).isEqualTo(7);
   }
 
   @Test
