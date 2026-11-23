@@ -131,3 +131,29 @@ jobs:
         run: bash .github/scripts/verify-action-pins.sh
         env:
           GH_TOKEN: ${{ github.token }}
+
+  backend-vulnerabilities:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      # Maven itself resolves every dependency, transitive ones and versions set by the
+      # Spring Boot parent included. OSV-Scanner cannot resolve most of these from pom.xml
+      # alone, so it reads the resulting list instead. The frontend has npm audit.
+      - name: List runtime dependencies (CycloneDX)
+        working-directory: backend
+        run: |
+          ./mvnw -B -ntp org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeBom \
+            -DoutputFormat=json -DoutputName=bom -DincludeTestScope=false
+          echo "Components: $(jq '.components | length' target/bom.json)"
+      - name: Check backend dependencies for known vulnerabilities
+        uses: google/osv-scanner-action/osv-scanner-action@32d3cd482bdadfb38b186c0ad1b031902d55d932 # v2.7.1
+        with:
+          scan-args: |-
+            scan
+            source
+            --lockfile=backend/target/bom.json
