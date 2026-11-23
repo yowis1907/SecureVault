@@ -47,10 +47,8 @@ export function ToastRegion() {
           key={m.id}
           role={m.tone === 'error' ? 'alert' : 'status'}
           className={clsx(
-            'pointer-events-auto rounded-[var(--radius-control)] border px-4 py-2 text-sm',
-            m.tone === 'error'
-              ? 'border-danger bg-danger-soft text-text'
-              : 'border-line bg-surface text-text',
+            'glass-bar rise pointer-events-auto rounded-full px-5 py-2.5 text-sm font-medium text-text',
+            m.tone === 'error' && 'text-danger',
           )}
         >
           {m.text}

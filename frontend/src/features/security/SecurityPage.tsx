@@ -33,7 +33,7 @@ function IssueList({
 }) {
   if (entries.length === 0) return null;
   return (
-    <section className="border-t border-line pt-5">
+    <section className="glass p-6 sm:p-8">
       <h2 className="font-semibold">
         {title} <span className="font-mono text-muted tabular-nums">{entries.length}</span>
       </h2>
@@ -71,7 +71,7 @@ export function SecurityPage() {
   return (
     <div className="flex max-w-3xl flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Security</h1>
+        <h1 className="text-[2.5rem] leading-tight font-semibold">Security</h1>
         <p className="mt-1 text-sm text-muted">
           Checked on this device. No password is sent anywhere for this.
         </p>
@@ -81,12 +81,12 @@ export function SecurityPage() {
         <Spinner label="Checking your passwords" />
       ) : (
         <>
-          <section aria-labelledby="health" className="flex flex-col gap-3">
+          <section aria-labelledby="health" className="glass flex flex-col gap-3 p-6 sm:p-8">
             <h2 id="health" className="sr-only">
               Vault health
             </h2>
             <div className="flex items-baseline gap-3">
-              <span className="font-mono text-[3.5rem] leading-none tabular-nums">
+              <span className="text-[3.5rem] leading-none font-semibold tracking-tight tabular-nums">
                 {report.score}
               </span>
               <span className="text-muted">% of passwords are strong and used only once</span>
@@ -106,7 +106,7 @@ export function SecurityPage() {
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-sm text-muted">{label}</dt>
-                  <dd className="font-mono text-xl tabular-nums">{value}</dd>
+                  <dd className="text-xl font-semibold tabular-nums">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -118,7 +118,7 @@ export function SecurityPage() {
             entries={report.weak}
           />
           {report.reused.length > 0 ? (
-            <section className="border-t border-line pt-5">
+            <section className="glass p-6 sm:p-8">
               <h2 className="font-semibold">
                 Reused passwords{' '}
                 <span className="font-mono text-muted tabular-nums">
@@ -166,7 +166,7 @@ export function SecurityPage() {
         </>
       )}
 
-      <section aria-labelledby="activity" className="border-t border-line pt-5">
+      <section aria-labelledby="activity" className="glass p-6 sm:p-8">
         <h2 id="activity" className="font-semibold">
           Recent activity
         </h2>

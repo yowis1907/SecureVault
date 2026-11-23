@@ -76,6 +76,7 @@ Versions were checked against npm, Maven Central, and endoflife.date on 2026-11-
 | `hash-wasm` | **4.12.0, exact pin** | See below |
 | `@zxcvbn-ts/core` and language packs | 4.x | Local strength estimation, loaded lazily |
 | `lucide-react` | 1.71 | Icons. Toasts are our own `aria-live` region, since `sonner` injects styles |
+| Inter, Atkinson Hyperlegible Mono | 5.3 (`@fontsource-variable`) | Self-hosted because `font-src 'self'`. Text uses the system face first (SF Pro on Apple devices) and Inter elsewhere; secrets use Atkinson Hyperlegible Mono, which keeps l, I, 1, O and 0 apart |
 | Vitest, RTL, MSW, Playwright | 5.1, 16.3, 3.0, 1.65 | MSW and Playwright are dev-only |
 | `@noble/hashes` | 2.4 | **Dev-only**, used to cross-check Argon2id output |
 

@@ -80,7 +80,9 @@ const shot = async (name) => {
 };
 const exact = { exact: true };
 
+// The wait lets the entrance animations settle.
 await page.goto(BASE);
+await page.waitForTimeout(1200);
 await shot('landing');
 
 await page.goto(`${BASE}/register`);

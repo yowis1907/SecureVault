@@ -1,4 +1,5 @@
 import { Copy, RefreshCw } from 'lucide-react';
+import { clsx } from 'clsx';
 import { useState } from 'react';
 import { StrengthMeter } from '../../components/StrengthMeter';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +11,7 @@ import {
   LENGTH_LIMITS,
   type GeneratorOptions,
 } from '../../lib/generator';
+import { useDecodeText } from '../../lib/motion';
 import { copySecret } from '../../vault-session/clipboard';
 import { useUnlockedVault } from '../../vault-session/hooks';
 
@@ -25,6 +27,11 @@ export function GeneratorPage() {
   const [options, setOptions] = useState<GeneratorOptions>(DEFAULT_OPTIONS);
   const [password, setPassword] = useState(() => generatePassword(DEFAULT_OPTIONS));
   const selectedTypes = TYPES.filter(([key]) => options[key]).length;
+  // New passwords resolve out of random glyphs. Once settled, only the real text is in the DOM,
+  // so selecting and copying it by hand gets exactly the password.
+  const decoded = useDecodeText(password, 420);
+  const settled = decoded === password;
+  const [spins, setSpins] = useState(0);
 
   function update(next: GeneratorOptions) {
     setOptions(next);
@@ -32,21 +39,32 @@ export function GeneratorPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Password generator</h1>
-      <p className="mt-1 text-sm text-muted">
-        Generated on this device from the browser's cryptographic random source.
-      </p>
+    <div className="flex max-w-3xl flex-col gap-5">
+      <div>
+        <h1 className="text-[2.5rem] leading-tight font-semibold">Password generator</h1>
+        <p className="mt-1 text-[0.9375rem] text-muted">
+          Made on this device from the browser&apos;s cryptographic random source.
+        </p>
+      </div>
 
-      <div className="mt-6 rounded-[var(--radius-panel)] border border-line bg-surface p-4 sm:p-5">
-        <output
-          aria-live="polite"
-          aria-label="Generated password"
-          className="secret block min-h-14 text-xl leading-snug sm:text-2xl"
-        >
+      <div className="glass p-7 sm:p-9">
+        {/* Announced once per new password; the animated text below is visual only. */}
+        <output aria-live="polite" aria-label="Generated password" className="sr-only">
           {password}
         </output>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <p
+          aria-hidden="true"
+          className={clsx(
+            'secret min-h-14 text-2xl leading-snug transition-colors duration-300 sm:text-[2.125rem]',
+            !settled && 'text-accent',
+          )}
+        >
+          {decoded}
+        </p>
+        <div className="mt-6">
+          <StrengthMeter password={password} />
+        </div>
+        <div className="mt-6 flex flex-wrap gap-2.5">
           <Button
             onClick={() => {
               copySecret(password, vault.settings.clipboardClearSeconds).then(
@@ -70,21 +88,24 @@ export function GeneratorPage() {
             variant="secondary"
             onClick={() => {
               setPassword(generatePassword(options));
+              setSpins((n) => n + 1);
             }}
           >
-            <RefreshCw size={16} aria-hidden="true" /> Generate another
+            <RefreshCw
+              size={16}
+              aria-hidden="true"
+              className={clsx(spins > 0 && (spins % 2 ? 'spin-once-a' : 'spin-once-b'))}
+            />{' '}
+            Generate another
           </Button>
-        </div>
-        <div className="mt-4">
-          <StrengthMeter password={password} />
         </div>
       </div>
 
-      <fieldset className="mt-8 flex flex-col gap-5">
-        <legend className="font-semibold">Options</legend>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="length" className="flex justify-between text-sm font-medium">
-            Length <span className="font-mono tabular-nums">{options.length}</span>
+      <fieldset className="glass flex flex-col px-7 py-3 sm:px-9">
+        <legend className="sr-only">Options</legend>
+        <div className="flex flex-col gap-3 py-5">
+          <label htmlFor="length" className="flex justify-between text-[1.0625rem]">
+            Length <span className="font-semibold tabular-nums">{options.length}</span>
           </label>
           <input
             id="length"
@@ -95,45 +116,47 @@ export function GeneratorPage() {
             onChange={(e) => {
               update({ ...options, length: Number(e.target.value) });
             }}
-            className="accent-[var(--sv-accent)]"
+            className="w-full accent-[var(--sv-accent)]"
           />
-          <p className="text-sm text-muted">
+          <p className="text-[0.8125rem] text-muted">
             About {entropyBits(options)} bits of randomness. 80 or more resists any realistic
             guessing.
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {TYPES.map(([key, label, sample]) => (
-            <label key={key} className="flex items-center gap-3 text-sm">
-              <input
-                type="checkbox"
-                checked={options[key]}
-                // The last selected type cannot be turned off; a password needs some characters.
-                disabled={options[key] && selectedTypes === 1}
-                onChange={(e) => {
-                  update({ ...options, [key]: e.target.checked });
-                }}
-                className="size-4 accent-[var(--sv-accent)]"
-              />
-              <span>
-                {label} <span className="font-mono text-muted">{sample}</span>
-              </span>
-            </label>
-          ))}
-          <label className="flex items-center gap-3 text-sm sm:col-span-2">
+        {TYPES.map(([key, label, sample]) => (
+          <label
+            key={key}
+            className="flex cursor-pointer items-center gap-3 border-t border-line/70 py-3.5 text-[1.0625rem]"
+          >
+            <span className="flex-1">
+              {label} <span className="secret text-[0.9375rem] text-muted">{sample}</span>
+            </span>
             <input
               type="checkbox"
-              checked={options.avoidAmbiguous}
+              checked={options[key]}
+              // The last selected type cannot be turned off; a password needs some characters.
+              disabled={options[key] && selectedTypes === 1}
               onChange={(e) => {
-                update({ ...options, avoidAmbiguous: e.target.checked });
+                update({ ...options, [key]: e.target.checked });
               }}
-              className="size-4 accent-[var(--sv-accent)]"
+              className="switch"
             />
-            <span>
-              Avoid look-alike characters <span className="font-mono text-muted">I l 1 O 0</span>
-            </span>
           </label>
-        </div>
+        ))}
+        <label className="flex cursor-pointer items-center gap-3 border-t border-line/70 py-3.5 text-[1.0625rem]">
+          <span className="flex-1">
+            Avoid look-alike characters{' '}
+            <span className="secret text-[0.9375rem] text-muted">I l 1 O 0</span>
+          </span>
+          <input
+            type="checkbox"
+            checked={options.avoidAmbiguous}
+            onChange={(e) => {
+              update({ ...options, avoidAmbiguous: e.target.checked });
+            }}
+            className="switch"
+          />
+        </label>
       </fieldset>
     </div>
   );

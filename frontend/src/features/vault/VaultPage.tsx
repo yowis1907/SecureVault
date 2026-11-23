@@ -71,7 +71,7 @@ export function VaultPage() {
         )}
       >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Vault</h1>
+          <h1 className="text-[2.5rem] leading-tight font-semibold">Vault</h1>
           <p className="text-sm text-muted">
             {vault.logins.length === 1 ? '1 login' : `${String(vault.logins.length)} logins`},
             searched on this device only
@@ -83,31 +83,31 @@ export function VaultPage() {
             onClick={() => {
               setManaging(true);
             }}
-            className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-control)] border border-line px-3 text-sm hover:bg-surface-2"
+            className="glass-clear inline-flex h-11 items-center gap-2 rounded-full px-5 text-[0.9375rem] font-medium transition-colors hover:bg-[var(--sv-glass-strong)]"
           >
             <FolderPlus size={16} aria-hidden="true" /> Categories
           </button>
           <Link
             to="/app/vault/new"
-            className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-control)] bg-accent px-3 text-sm font-medium text-on-accent hover:bg-accent-strong"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-accent-fill px-5 text-[0.9375rem] font-medium text-on-accent shadow-[0_6px_18px_-6px_color-mix(in_oklab,var(--sv-accent-fill)_60%,transparent)] transition hover:brightness-110"
           >
             <Plus size={16} aria-hidden="true" /> Add login
           </Link>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[20rem_1fr]">
+      <div className="grid items-start gap-5 lg:grid-cols-[24rem_1fr]">
         <section
           aria-label="Logins"
-          className={clsx('flex flex-col gap-3', selected && 'hidden lg:flex')}
+          className={clsx('glass flex flex-col gap-2.5 p-2.5', selected && 'hidden lg:flex')}
         >
-          <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+          <div className="flex flex-col gap-2 p-1 sm:flex-row lg:flex-col">
             <label className="relative flex-1">
               <span className="sr-only">Search logins</span>
               <Search
                 size={16}
                 aria-hidden="true"
-                className="absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+                className="absolute top-1/2 left-4 -translate-y-1/2 text-muted"
               />
               <input
                 ref={searchRef}
@@ -118,7 +118,7 @@ export function VaultPage() {
                 }}
                 placeholder="Search  ( / )"
                 autoComplete="off"
-                className="h-10 w-full rounded-[var(--radius-control)] border border-line bg-surface pr-3 pl-9"
+                className="h-11 w-full rounded-full border border-line/60 bg-surface/70 pr-4 pl-10 focus:border-accent focus:outline-none"
               />
             </label>
             <label className="sm:w-48 lg:w-full">
@@ -133,7 +133,7 @@ export function VaultPage() {
                     setFilter({ kind: 'category', id: cat === 'none' ? null : cat });
                   }
                 }}
-                className="h-10 w-full rounded-[var(--radius-control)] border border-line bg-surface px-3"
+                className="h-11 w-full rounded-full border border-line/60 bg-surface/70 px-4 focus:border-accent focus:outline-none"
               >
                 <option value="all">All logins</option>
                 <option value="favorites">Favorites</option>
@@ -147,21 +147,24 @@ export function VaultPage() {
             </label>
           </div>
           {visible.length === 0 ? (
-            <p className="py-6 text-sm text-muted">
+            <p className="px-3 py-6 text-sm text-muted">
               {vault.logins.length === 0
                 ? 'No logins yet. Add one to get started.'
                 : 'Nothing matches.'}
             </p>
           ) : (
-            <ul className="divide-y divide-line border-y border-line">
-              {visible.map((entry) => (
-                <EntryRow key={entry.id} entry={entry} selected={entry.id === id} />
+            <ul className="flex flex-col gap-0.5">
+              {visible.map((entry, i) => (
+                <EntryRow key={entry.id} entry={entry} selected={entry.id === id} index={i} />
               ))}
             </ul>
           )}
         </section>
 
-        <section aria-label="Login details" className={clsx(!selected && 'hidden lg:block')}>
+        <section
+          aria-label="Login details"
+          className={clsx('glass min-h-[24rem] p-6 sm:p-9', !selected && 'hidden lg:block')}
+        >
           {selected ? (
             <>
               <Link

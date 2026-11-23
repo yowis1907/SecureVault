@@ -2,7 +2,24 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Wordmark } from './Wordmark';
 
-/** Sign-in and sign-up pages: one narrow column, nothing competing with the form. */
+/**
+ * Sign-in, sign-up, and unlock: one liquid glass card in the middle of the wallpaper, with the
+ * wordmark top left and an optional action top right.
+ */
+export function AuthBackdrop({ header, children }: { header?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <header className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6">
+        <Wordmark />
+        {header}
+      </header>
+      <div className="flex flex-1 items-start justify-center px-4 pt-[6vh] pb-16 sm:items-center sm:pt-0">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function AuthLayout({
   title,
   intro,
@@ -15,21 +32,18 @@ export function AuthLayout({
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header className="mx-auto flex h-16 w-full max-w-6xl items-center px-4">
-        <Wordmark />
-      </header>
-      <main id="main" className="flex flex-1 justify-center px-4 py-8 sm:py-16">
-        <div className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          {intro ? <div className="mt-2 text-muted">{intro}</div> : null}
-          <div className="mt-8">{children}</div>
-          {footer ? (
-            <div className="mt-8 border-t border-line pt-6 text-sm text-muted">{footer}</div>
-          ) : null}
-        </div>
+    <AuthBackdrop>
+      <main id="main" className="glass rise w-full max-w-[440px] p-8 sm:p-10">
+        <h1 className="text-[2.5rem] leading-[1.1] font-semibold">{title}</h1>
+        {intro ? <div className="mt-3 text-[0.9375rem] text-muted">{intro}</div> : null}
+        <div className="mt-8">{children}</div>
+        {footer ? (
+          <div className="mt-8 border-t border-line/70 pt-6 text-center text-[0.9375rem] text-muted">
+            {footer}
+          </div>
+        ) : null}
       </main>
-    </div>
+    </AuthBackdrop>
   );
 }
 

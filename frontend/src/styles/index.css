@@ -1,74 +1,112 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/atkinson-hyperlegible-next';
+@import '@fontsource-variable/inter';
 @import '@fontsource-variable/atkinson-hyperlegible-mono';
 
 /*
- * SecureVault tokens: "a precision instrument".
- * Graphite and mineral-grey neutrals, one verdigris accent (the patina of oxidized copper).
- * Colour carries meaning only: verdigris = unlocked/primary, amber = weak or expiring, red = danger.
- * Atkinson Hyperlegible was drawn so that l, I, 1, O and 0 cannot be confused, which matters for
- * reading and typing passwords.
+ * SecureVault tokens: light, quiet, and layered in liquid glass.
+ *
+ * Apple's neutral greys, one blue accent, and frosted panels over a soft pastel wallpaper.
+ * Text uses the system face (SF Pro on Apple devices) with Inter as the fallback everywhere
+ * else. Secrets use Atkinson Hyperlegible Mono, drawn so that l, I, 1, O and 0 cannot be confused.
+ * Colour carries meaning only: blue = primary or unlocked, amber = weak, red = danger.
  *
  * Themes switch by redefining these variables; components never use a dark: variant.
  */
 :root {
   color-scheme: light;
-  --sv-bg: #eceeea;
-  --sv-surface: #f7f8f5;
-  --sv-surface-2: #e2e5e0;
-  --sv-line: #c9cec8;
-  --sv-text: #1b1f22;
-  --sv-muted: #565e5b;
-  --sv-accent: #2b7164;
-  --sv-accent-strong: #1f5a4f;
-  --sv-on-accent: #f7f8f5;
-  --sv-accent-soft: #d3e6e0;
-  --sv-warn: #8a5a0b;
-  --sv-warn-soft: #f1e3c8;
-  --sv-danger: #a23a2f;
-  --sv-danger-soft: #f2d9d5;
+  --sv-bg: #f5f5f7;
+  --sv-surface: #ffffff;
+  --sv-surface-2: #ebebf0;
+  --sv-line: #d2d2d7;
+  --sv-text: #1d1d1f;
+  --sv-muted: #6e6e73;
+  --sv-accent: #0071e3;
+  --sv-accent-fill: #0071e3;
+  --sv-accent-strong: #0062c4;
+  --sv-on-accent: #ffffff;
+  --sv-accent-soft: #e8f1fd;
+  --sv-success: #248a3d;
+  --sv-warn: #a15500;
+  --sv-warn-soft: #fdf0dc;
+  --sv-danger: #d70015;
+  --sv-danger-soft: #fde7e8;
+
+  --sv-glass: rgb(255 255 255 / 0.5);
+  --sv-glass-strong: rgb(255 255 255 / 0.72);
+  --sv-glass-edge: rgb(255 255 255 / 0.85);
+  --sv-glass-shine: rgb(255 255 255 / 0.55);
+  --sv-shadow: 28 30 51;
+  --sv-wp-1: #c3dbff;
+  --sv-wp-2: #e4d9ff;
+  --sv-wp-3: #ffe2cf;
+  --sv-wp-4: #cfefe4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --sv-bg: #16191b;
-    --sv-surface: #1d2124;
-    --sv-surface-2: #262b2e;
-    --sv-line: #363c40;
-    --sv-text: #e4e7e3;
-    --sv-muted: #9ba39f;
-    --sv-accent: #6fc2af;
-    --sv-accent-strong: #8fd3c3;
-    --sv-on-accent: #10201c;
-    --sv-accent-soft: #1f3a35;
-    --sv-warn: #e0a84a;
+    --sv-bg: #0b0b0f;
+    --sv-surface: #1c1c1e;
+    --sv-surface-2: #2c2c2e;
+    --sv-line: #3a3a3c;
+    --sv-text: #f5f5f7;
+    --sv-muted: #a1a1a6;
+    --sv-accent: #4c9bff;
+    --sv-accent-fill: #0a64d6;
+    --sv-accent-strong: #7db5ff;
+    --sv-on-accent: #ffffff;
+    --sv-accent-soft: #12284a;
+    --sv-success: #32d74b;
+    --sv-warn: #ffb340;
     --sv-warn-soft: #3a2e17;
-    --sv-danger: #ec8a7d;
+    --sv-danger: #ff6961;
     --sv-danger-soft: #3d2320;
+    --sv-glass: rgb(44 44 48 / 0.5);
+    --sv-glass-strong: rgb(44 44 48 / 0.78);
+    --sv-glass-edge: rgb(255 255 255 / 0.12);
+    --sv-glass-shine: rgb(255 255 255 / 0.1);
+    --sv-shadow: 0 0 0;
+    --sv-wp-1: #1b2c4d;
+    --sv-wp-2: #2a2147;
+    --sv-wp-3: #3a2a22;
+    --sv-wp-4: #163329;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --sv-bg: #16191b;
-  --sv-surface: #1d2124;
-  --sv-surface-2: #262b2e;
-  --sv-line: #363c40;
-  --sv-text: #e4e7e3;
-  --sv-muted: #9ba39f;
-  --sv-accent: #6fc2af;
-  --sv-accent-strong: #8fd3c3;
-  --sv-on-accent: #10201c;
-  --sv-accent-soft: #1f3a35;
-  --sv-warn: #e0a84a;
+  --sv-bg: #0b0b0f;
+  --sv-surface: #1c1c1e;
+  --sv-surface-2: #2c2c2e;
+  --sv-line: #3a3a3c;
+  --sv-text: #f5f5f7;
+  --sv-muted: #a1a1a6;
+  --sv-accent: #4c9bff;
+  --sv-accent-fill: #0a64d6;
+  --sv-accent-strong: #7db5ff;
+  --sv-on-accent: #ffffff;
+  --sv-accent-soft: #12284a;
+  --sv-success: #32d74b;
+  --sv-warn: #ffb340;
   --sv-warn-soft: #3a2e17;
-  --sv-danger: #ec8a7d;
+  --sv-danger: #ff6961;
   --sv-danger-soft: #3d2320;
+  --sv-glass: rgb(44 44 48 / 0.5);
+  --sv-glass-strong: rgb(44 44 48 / 0.78);
+  --sv-glass-edge: rgb(255 255 255 / 0.12);
+  --sv-glass-shine: rgb(255 255 255 / 0.1);
+  --sv-shadow: 0 0 0;
+  --sv-wp-1: #1b2c4d;
+  --sv-wp-2: #2a2147;
+  --sv-wp-3: #3a2a22;
+  --sv-wp-4: #163329;
 }
 
 @theme inline {
-  --font-sans: 'Atkinson Hyperlegible Next Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', system-ui, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Variable', system-ui, sans-serif;
   --font-mono: 'Atkinson Hyperlegible Mono Variable', ui-monospace, monospace;
 
   --color-bg: var(--sv-bg);
@@ -78,25 +116,27 @@
   --color-text: var(--sv-text);
   --color-muted: var(--sv-muted);
   --color-accent: var(--sv-accent);
+  --color-accent-fill: var(--sv-accent-fill);
   --color-accent-strong: var(--sv-accent-strong);
   --color-on-accent: var(--sv-on-accent);
   --color-accent-soft: var(--sv-accent-soft);
+  --color-success: var(--sv-success);
   --color-warn: var(--sv-warn);
   --color-warn-soft: var(--sv-warn-soft);
   --color-danger: var(--sv-danger);
   --color-danger-soft: var(--sv-danger-soft);
 
-  /* A 1.25 scale from a 16px base. */
-  --text-xs: 0.8rem;
+  /* Apple's type ramp, in rem from a 16px base. */
+  --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5625rem;
-  --text-2xl: 1.953rem;
-  --text-3xl: 2.441rem;
+  --text-lg: 1.3125rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+  --text-3xl: 3.5rem;
 
-  --radius-control: 6px;
-  --radius-panel: 10px;
+  --radius-control: 12px;
+  --radius-panel: 28px;
 }
 
 @layer base {
@@ -104,12 +144,36 @@
     background: var(--sv-bg);
     color: var(--sv-text);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     min-height: 100dvh;
     line-height: 1.5;
+    letter-spacing: -0.01em;
+  }
+
+  /* The wallpaper: soft pastel light that the glass panels blur and tint. Fixed behind every
+     page, drawn once with gradients so it costs nothing while scrolling. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(52% 58% at 90% 0%, var(--sv-wp-1), transparent 70%),
+      radial-gradient(52% 58% at 0% 64%, var(--sv-wp-2), transparent 70%),
+      radial-gradient(48% 50% at 50% 106%, var(--sv-wp-3), transparent 70%),
+      radial-gradient(40% 48% at 102% 80%, var(--sv-wp-4), transparent 70%), var(--sv-bg);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
   }
 
   :focus-visible {
@@ -122,7 +186,8 @@
   }
 
   dialog::backdrop {
-    background: rgb(10 12 13 / 0.55);
+    background: rgb(20 20 24 / 0.3);
+    backdrop-filter: blur(6px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -135,14 +200,73 @@
   }
 }
 
-/* The lock fuse: a bar that burns down toward auto-lock. Width comes from a CSS variable that
-   React sets through the style object (CSSOM), which the CSP allows. */
 @layer components {
+  /*
+   * Liquid glass. A translucent fill that blurs and saturates whatever is behind it, a bright
+   * hairline edge, an inner highlight along the top, a sheen from the top-left corner, and a
+   * long soft shadow. `.panel` is the same material, kept for older markup.
+   */
+  .glass,
+  .panel {
+    position: relative;
+    isolation: isolate;
+    background: var(--sv-glass);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--sv-glass-edge);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      inset 0 1px 0 0 var(--sv-glass-shine),
+      0 18px 48px -16px rgb(var(--sv-shadow) / 0.14),
+      0 2px 6px rgb(var(--sv-shadow) / 0.04);
+  }
+  .glass::before,
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(155deg, var(--sv-glass-shine), transparent 38%);
+  }
+
+  /* Thinner glass for small controls: pills, chips, icon buttons, search. */
+  .glass-clear {
+    position: relative;
+    background: var(--sv-glass);
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    backdrop-filter: blur(14px) saturate(170%);
+    border: 1px solid var(--sv-glass-edge);
+    box-shadow:
+      inset 0 1px 0 0 var(--sv-glass-shine),
+      0 6px 18px -6px rgb(var(--sv-shadow) / 0.12);
+  }
+
+  /* Denser glass for bars that sit over content: the app header and the phone tab bar. */
+  .glass-bar {
+    background: var(--sv-glass-strong);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid var(--sv-glass-edge);
+    box-shadow:
+      inset 0 1px 0 0 var(--sv-glass-shine),
+      0 12px 32px -10px rgb(var(--sv-shadow) / 0.18);
+  }
+
+  /* Filled rows inside glass: a more opaque white well, like a grouped table on iOS. */
+  .well {
+    background: color-mix(in oklab, var(--sv-surface) 62%, transparent);
+    border-radius: 20px;
+  }
+
+  /* The lock fuse: a bar that burns down toward auto-lock. Width comes from a CSS variable
+     that React sets through the style object (CSSOM), which the CSP allows. */
   .fuse {
     --fuse: 1;
     position: relative;
-    height: 3px;
-    background: var(--sv-line);
+    height: 4px;
+    background: color-mix(in oklab, var(--sv-line) 70%, transparent);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -153,10 +277,159 @@
     transform-origin: left center;
     transform: scaleX(var(--fuse));
     background: var(--sv-accent);
+    border-radius: inherit;
     transition: transform 1s linear;
   }
   .fuse[data-low='true']::after {
     background: var(--sv-warn);
+  }
+
+  .display {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  /* A small accent label above a heading. */
+  .eyebrow {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--sv-accent);
+  }
+
+  /* An iOS-style switch drawn on a native checkbox, so it keeps keyboard and form behaviour. */
+  .switch {
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 51px;
+    height: 31px;
+    border-radius: 999px;
+    background: var(--sv-line);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+    transition: transform 0.25s cubic-bezier(0.3, 0.7, 0.4, 1.3);
+  }
+  .switch:checked {
+    background: var(--sv-success);
+  }
+  .switch:checked::after {
+    transform: translateX(20px);
+  }
+  .switch:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* Revealed once when scrolled into view (useReveal). Children can stagger with --i. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .reveal[data-visible='true'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Short entrance for panels and list rows, staggered by --i. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  .rise {
+    animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 35ms);
+  }
+
+  /* Freshly changed ciphertext flashes once. */
+  @keyframes cipher-flash {
+    from {
+      color: var(--sv-accent);
+    }
+  }
+  .cipher-flash {
+    animation: cipher-flash 0.6s ease-out;
+  }
+
+  /* One turn of the refresh icon per click; two identical animations, alternated. */
+  @keyframes spin-once-a {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes spin-once-b {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .spin-once-a {
+    animation: spin-once-a 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .spin-once-b {
+    animation: spin-once-b 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* A wrong master password: a short shake, alternated the same way. */
+  @keyframes shake-a {
+    20%,
+    60% {
+      transform: translateX(-7px);
+    }
+    40%,
+    80% {
+      transform: translateX(7px);
+    }
+  }
+  @keyframes shake-b {
+    20%,
+    60% {
+      transform: translateX(-7px);
+    }
+    40%,
+    80% {
+      transform: translateX(7px);
+    }
+  }
+  .shake-a {
+    animation: shake-a 0.4s ease-in-out;
+  }
+  .shake-b {
+    animation: shake-b 0.4s ease-in-out;
+  }
+
+  /* The unlock disc breathes while the key is being derived. */
+  @keyframes breathe {
+    50% {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 10px color-mix(in oklab, var(--sv-accent) 14%, transparent);
+    }
+  }
+  .breathe {
+    animation: breathe 1.4s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .secret {

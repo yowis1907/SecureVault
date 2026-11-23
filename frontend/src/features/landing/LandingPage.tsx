@@ -1,8 +1,10 @@
-import { useEffect, useId, useState } from 'react';
+import { ArrowRight, Cpu, KeyRound, ServerOff, ShieldCheck } from 'lucide-react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Wordmark } from '../../components/layout/Wordmark';
 import { bytesToBase64 } from '../../crypto/encoding';
 import { encryptRecord } from '../../crypto/records';
+import { useReveal } from '../../lib/motion';
 
 /**
  * Encrypts what the visitor types with the real record format and a throwaway key that exists
@@ -12,6 +14,7 @@ function SealDemo() {
   const inputId = useId();
   const [text, setText] = useState('correct horse battery staple');
   const [sealed, setSealed] = useState('');
+  const [generation, setGeneration] = useState(0);
   const [key, setKey] = useState<CryptoKey | null>(null);
   const [ids] = useState(() => ({ vaultId: crypto.randomUUID(), recordId: crypto.randomUUID() }));
 
@@ -26,7 +29,9 @@ function SealDemo() {
     let cancelled = false;
     void encryptRecord(key, { ...ids, recordType: 'LOGIN' }, { schema: 1, password: text }).then(
       (blob) => {
-        if (!cancelled) setSealed(bytesToBase64(blob.ciphertext));
+        if (cancelled) return;
+        setSealed(bytesToBase64(blob.ciphertext));
+        setGeneration((g) => g + 1);
       },
     );
     return () => {
@@ -35,156 +40,252 @@ function SealDemo() {
   }, [key, ids, text]);
 
   return (
-    <div className="rounded-[var(--radius-panel)] border border-line bg-surface">
-      <div className="border-b border-line p-4 sm:p-5">
-        <label htmlFor={inputId} className="text-sm font-medium">
-          On your device
-        </label>
-        <input
-          id={inputId}
-          value={text}
-          maxLength={200}
-          spellCheck={false}
-          autoComplete="off"
-          onChange={(e) => {
-            setText(e.target.value);
-          }}
-          className="secret mt-2 h-11 w-full rounded-[var(--radius-control)] border border-line bg-bg px-3 text-base"
-        />
-        <p className="mt-2 text-xs text-muted">
-          Type anything. It is encrypted here with a key that never leaves this page.
-        </p>
+    <div className="relative mx-auto w-full max-w-[1040px] pt-6 pb-8">
+      {/* Floating glass badges layered over the card, as in the design. */}
+      <p className="glass-clear absolute top-0 left-6 z-10 hidden items-center gap-2 rounded-full px-4 py-2 text-[0.8125rem] sm:left-16 sm:flex">
+        <KeyRound size={16} className="text-accent" aria-hidden="true" />
+        Key derived on device · Argon2id, 64 MiB
+      </p>
+      <div className="glass grid items-stretch gap-0 md:grid-cols-[1fr_auto_1fr]">
+        <div className="flex flex-col gap-3.5 p-7 sm:p-10">
+          <label
+            htmlFor={inputId}
+            className="text-xs font-medium tracking-wide text-muted uppercase"
+          >
+            On your device
+          </label>
+          <input
+            id={inputId}
+            value={text}
+            maxLength={200}
+            spellCheck={false}
+            autoComplete="off"
+            onChange={(e) => {
+              setText(e.target.value);
+            }}
+            className="secret h-14 w-full rounded-[18px] border border-line/60 bg-surface/70 px-5 text-[0.9375rem] transition-shadow focus:border-accent focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--sv-accent)_18%,transparent)] focus:outline-none"
+          />
+          <p className="text-[0.8125rem] text-muted">
+            Type anything. It is encrypted here, with a key that never leaves this page.
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-2.5 px-2 pb-2 md:pb-0">
+          <span
+            aria-hidden="true"
+            className="flex size-14 rotate-90 items-center justify-center rounded-full bg-accent-fill text-on-accent shadow-[0_8px_24px_-6px_color-mix(in_oklab,var(--sv-accent-fill)_70%,transparent)] md:rotate-0"
+          >
+            <ArrowRight size={22} />
+          </span>
+          <span className="text-xs font-medium text-muted">AES-256-GCM</span>
+        </div>
+        <div className="flex flex-col gap-3.5 p-7 sm:p-10">
+          <p className="text-xs font-medium tracking-wide text-muted uppercase">
+            What the server stores
+          </p>
+          <p
+            key={generation}
+            aria-live="off"
+            className="secret cipher-flash max-h-[6.5rem] overflow-hidden rounded-[18px] border border-line/60 bg-surface/70 px-5 py-4 text-[0.8125rem] leading-relaxed text-muted"
+          >
+            {sealed || '…'}
+          </p>
+          <p className="text-[0.8125rem] text-muted">
+            Padded to 256-byte steps, so even short secrets look alike.
+          </p>
+        </div>
       </div>
-      <div className="p-4 sm:p-5">
-        <p className="text-sm font-medium">What the server stores</p>
-        <p
-          aria-live="off"
-          className="secret mt-2 max-h-40 overflow-hidden text-xs leading-relaxed text-muted [mask-image:linear-gradient(to_bottom,black_70%,transparent)]"
-        >
-          {sealed || '…'}
-        </p>
-        <p className="mt-3 text-xs text-muted">
-          The length is padded to 256-byte steps, so even short secrets look alike.
-        </p>
-      </div>
+      <p className="glass-clear absolute right-6 bottom-0 z-10 hidden items-center gap-2 rounded-full px-4 py-2 text-[0.8125rem] sm:right-24 sm:flex">
+        <ShieldCheck size={16} className="text-accent" aria-hidden="true" />
+        The server never sees the key
+      </p>
     </div>
   );
 }
 
 const STEPS = [
   {
-    title: 'Your master password becomes a key on your device',
-    body: 'Argon2id stretches it with 64 MiB of memory work, which makes every guess expensive. The password itself is never sent anywhere.',
+    icon: KeyRound,
+    title: 'Derive',
+    body: 'Your master password becomes a key on this device. Argon2id makes every guess expensive, and the password itself is never sent.',
   },
   {
-    title: 'Each item is sealed whole',
-    body: 'Title, username, password, address and notes are encrypted together with AES-256-GCM, so the server cannot see which sites you use or swap fields between items.',
+    icon: Cpu,
+    title: 'Seal',
+    body: 'Each login is encrypted whole with AES-256-GCM, so the server cannot see which sites you use or swap fields between items.',
   },
   {
-    title: 'The server keeps ciphertext it cannot open',
-    body: 'It checks your separate account password to sign you in, then stores and returns sealed items. It holds no key that could read them.',
+    icon: ServerOff,
+    title: 'Store',
+    body: 'The server checks a separate account password to sign you in, then keeps ciphertext it cannot open.',
   },
 ];
 
 const LIMITS = [
-  'A server that has been taken over could send modified code that captures your master password the next time you unlock. This is a limit of every password manager that runs in a browser.',
-  'Malware or a malicious extension on your device can read what you see while the vault is unlocked.',
+  'A server that has been taken over could send code that captures your master password at the next unlock. This is a limit of every password manager that runs in a browser.',
+  'Malware or a malicious extension can read what you see while the vault is open.',
   'A weak master password can be guessed offline if the database is stolen. The strength check helps you avoid one.',
-  'If you forget your master password, your vault cannot be recovered.',
+  'If you forget your master password, the vault cannot be recovered.',
 ];
+
+function Reveal({
+  as: Tag = 'div',
+  index = 0,
+  className,
+  children,
+}: {
+  as?: 'div' | 'li';
+  index?: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  const ref = useReveal<HTMLDivElement & HTMLLIElement>();
+  return (
+    <Tag ref={ref} className={`reveal ${className ?? ''}`} style={{ ['--i' as string]: index }}>
+      {children}
+    </Tag>
+  );
+}
 
 export function LandingPage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
-        <Wordmark />
-        <nav aria-label="Account" className="flex items-center gap-2">
-          <Link
-            to="/login"
-            className="rounded-[var(--radius-control)] px-3 py-2 text-sm hover:bg-surface-2"
-          >
-            Sign in
-          </Link>
-          <Link
-            to="/register"
-            className="rounded-[var(--radius-control)] bg-accent px-3 py-2 text-sm font-medium text-on-accent hover:bg-accent-strong"
-          >
-            Create a vault
-          </Link>
+      {/* Floating glass navigation capsule. */}
+      <header className="sticky top-0 z-30 px-4 pt-6">
+        <nav
+          aria-label="Account"
+          className="glass-bar mx-auto flex h-14 w-full max-w-[1000px] items-center justify-between rounded-full py-2 pr-2 pl-3"
+        >
+          <Wordmark />
+          <div className="flex items-center gap-1">
+            <a
+              href="#how"
+              className="hidden rounded-full px-3.5 py-2 text-[0.9375rem] text-muted transition-colors hover:text-text sm:block"
+            >
+              How it works
+            </a>
+            <a
+              href="#limits"
+              className="hidden rounded-full px-3.5 py-2 text-[0.9375rem] text-muted transition-colors hover:text-text sm:block"
+            >
+              Security
+            </a>
+            <Link
+              to="/login"
+              className="rounded-full px-3.5 py-2 text-[0.9375rem] whitespace-nowrap text-muted transition-colors hover:text-text"
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/register"
+              className="rounded-full bg-accent-fill px-4 py-2 text-[0.9375rem] font-medium whitespace-nowrap text-on-accent transition hover:brightness-110"
+            >
+              Create a vault
+            </Link>
+          </div>
         </nav>
       </header>
 
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4">
-        <section className="grid items-center gap-10 py-12 md:grid-cols-[1.05fr_1fr] md:py-20">
-          <div>
-            <h1 className="max-w-[16ch] text-3xl leading-[1.1] font-semibold tracking-tight sm:text-[3.2rem]">
-              Your passwords are encrypted before they leave this page.
-            </h1>
-            <p className="mt-5 max-w-[52ch] text-lg text-muted">
-              SecureVault keeps your logins in a vault that only your master password opens. The
-              server stores sealed data and never receives the key.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/register"
-                className="rounded-[var(--radius-control)] bg-accent px-5 py-3 font-medium text-on-accent hover:bg-accent-strong"
-              >
-                Create a vault
-              </Link>
-              <Link
-                to="/login"
-                className="rounded-[var(--radius-control)] border border-line px-5 py-3 font-medium hover:bg-surface-2"
-              >
-                Sign in
-              </Link>
-            </div>
+      <main id="main" className="flex-1 px-4">
+        <section className="mx-auto flex max-w-5xl flex-col items-center pt-20 pb-14 text-center sm:pt-28">
+          <p className="glass-clear rise flex items-center gap-2 rounded-full px-4 py-1.5 text-[0.8125rem] text-muted">
+            <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
+            Zero-knowledge · Encrypted on your device
+          </p>
+          <h1 className="display rise mt-7 text-[2.75rem] leading-[1.04] font-semibold sm:text-[5rem]">
+            Your passwords.
+            <br />
+            Sealed before they leave.
+          </h1>
+          <p className="rise mt-6 max-w-[40rem] text-lg text-muted sm:text-[1.3125rem] sm:leading-[1.45]">
+            SecureVault encrypts every login on this device with a key only your master password can
+            make. The server keeps sealed data it can never open.
+          </p>
+          <div className="rise mt-9 flex flex-wrap justify-center gap-3">
+            <Link
+              to="/register"
+              className="group inline-flex h-[52px] items-center gap-2 rounded-full bg-accent-fill px-7 text-base font-medium text-on-accent shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--sv-accent-fill)_70%,transparent)] transition hover:brightness-110"
+            >
+              Create a vault
+              <ArrowRight
+                size={18}
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </Link>
+            <a
+              href="#how"
+              className="glass-clear inline-flex h-[52px] items-center rounded-full px-7 text-base font-medium transition-colors hover:bg-[var(--sv-glass-strong)]"
+            >
+              See how it works
+            </a>
           </div>
-          <SealDemo />
         </section>
 
-        <section aria-labelledby="how" className="border-t border-line py-14">
-          <h2 id="how" className="text-xl font-semibold tracking-tight">
-            How your vault is protected
-          </h2>
-          <ol className="mt-8 grid gap-8 md:grid-cols-3">
-            {STEPS.map((step, i) => (
-              <li key={step.title} className="flex gap-4">
-                <span className="font-mono text-sm text-accent">{String(i + 1)}</span>
-                <div>
-                  <h3 className="font-semibold">{step.title}</h3>
-                  <p className="mt-2 text-sm text-muted">{step.body}</p>
-                </div>
-              </li>
-            ))}
+        <Reveal>
+          <SealDemo />
+        </Reveal>
+
+        <section
+          id="how"
+          aria-labelledby="how-heading"
+          className="mx-auto max-w-[1040px] scroll-mt-28 pt-28 pb-10"
+        >
+          <Reveal className="text-center">
+            <p className="eyebrow">How it works</p>
+            <h2 id="how-heading" className="mt-3 text-[2.5rem] leading-[1.15] font-semibold">
+              The key never leaves your device.
+            </h2>
+          </Reveal>
+          <ol className="mt-12 grid gap-5 md:grid-cols-3">
+            {STEPS.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <Reveal as="li" key={step.title} index={i}>
+                  <div className="glass flex h-full flex-col p-8">
+                    <span className="flex size-12 items-center justify-center rounded-[14px] bg-accent-soft text-accent">
+                      <Icon size={22} aria-hidden="true" />
+                    </span>
+                    <h3 className="mt-6 text-[1.3125rem] font-semibold">{step.title}</h3>
+                    <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{step.body}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
           </ol>
         </section>
 
-        <section aria-labelledby="limits" className="border-t border-line py-14">
-          <div className="grid gap-8 md:grid-cols-[1fr_2fr]">
+        <section
+          id="limits"
+          aria-labelledby="limits-heading"
+          className="mx-auto max-w-[1040px] scroll-mt-28 pt-16 pb-28"
+        >
+          <Reveal className="glass grid gap-10 p-8 sm:p-14 md:grid-cols-[1fr_1.7fr]">
             <div>
-              <h2 id="limits" className="text-xl font-semibold tracking-tight">
+              <p className="eyebrow text-warn">Honest limits</p>
+              <h2 id="limits-heading" className="mt-3 text-[1.75rem] leading-tight font-semibold">
                 What it cannot protect against
               </h2>
-              <p className="mt-3 text-sm text-muted">
-                Knowing the limits helps you decide what to store and how to protect your device.
+              <p className="mt-3 text-[0.9375rem] text-muted">
+                Knowing the limits helps you decide what to store.
               </p>
             </div>
-            <ul className="flex flex-col divide-y divide-line border-y border-line">
+            <ul className="flex flex-col gap-4">
               {LIMITS.map((limit) => (
-                <li key={limit} className="py-4 text-sm">
+                <li key={limit} className="flex gap-3.5 text-[1.0625rem] leading-relaxed">
+                  <span
+                    className="mt-[0.7rem] size-1.5 flex-none rounded-full bg-muted"
+                    aria-hidden="true"
+                  />
                   {limit}
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </section>
       </main>
 
-      <footer className="border-t border-line">
-        <p className="mx-auto max-w-6xl px-4 py-6 text-sm text-muted">
-          SecureVault is a security engineering project. It has not been independently audited, so
-          do not use it for passwords you cannot afford to lose.
-        </p>
+      <footer className="px-4 pb-12 text-center text-[0.8125rem] text-muted">
+        SecureVault is a security engineering project. It has not been independently audited.
       </footer>
     </div>
   );

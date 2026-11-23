@@ -6,6 +6,7 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
+- **New interface: light and liquid glass.** Designed in Figma first, in the manner of Apple's interfaces: light neutrals and one blue accent over a soft pastel wallpaper, with frosted, translucent panels (backdrop blur, a bright edge, an inner highlight, and a corner sheen). A floating glass navigation capsule on the landing page, a single glass card for sign-in and unlock, a floating glass sidebar in the app and a floating glass tab bar on phones, iOS-style switches in the generator, and a dark theme with the same materials. The system face is used first, so Apple devices show SF Pro.
 - **Firefox end-to-end runs.** CI runs the end-to-end suite in Chromium and Firefox, each against its own stack.
 - **Backend dependency scan.** CI lists every runtime Maven dependency with CycloneDX and checks it against the OSV database.
 - **Encrypted backup.** Export the vault to a file encrypted with a separate backup passphrase (Argon2id, HKDF label `securevault/v1/backup`, AES-256-GCM with the header authenticated), and import it into any vault under new IDs through the batch endpoint. Plaintext export is not offered.

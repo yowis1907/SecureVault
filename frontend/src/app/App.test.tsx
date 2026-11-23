@@ -8,7 +8,7 @@ describe('public pages', () => {
   it('shows the landing page with a live encryption demo', () => {
     renderApp('/');
     expect(
-      screen.getByRole('heading', { level: 1, name: /encrypted before they leave/i }),
+      screen.getByRole('heading', { level: 1, name: /sealed before they leave/i }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('On your device')).toBeInTheDocument();
   });
