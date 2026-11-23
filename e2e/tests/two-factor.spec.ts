@@ -45,11 +45,12 @@ test('a wrong master password is refused, and two-factor sign-in works', async (
   const firstCode = totp.generate();
   await page.getByLabel('6-digit code').fill(firstCode);
   await page.getByRole('button', { name: 'Turn on' }).click();
-  const codes = await page
+  const codeItems = page
     .getByRole('listitem')
-    .filter({ hasText: /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/ })
-    .allTextContents();
-  expect(codes).toHaveLength(10);
+    .filter({ hasText: /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/ });
+  // allTextContents does not wait, so wait for the codes to be shown first.
+  await expect(codeItems).toHaveCount(10);
+  const codes = await codeItems.allTextContents();
   await page.getByRole('button', { name: 'I have saved them' }).click();
   await expect(page.getByText(/10 recovery codes left/)).toBeVisible();
 
