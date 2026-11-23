@@ -41,7 +41,6 @@ Cross-implementation check for Argon2id: Bouncy Castle, `hash-wasm`, and `@noble
 
 ## Not run or not verified
 
-- **GitHub Actions, CodeQL, and gitleaks have never run.** The repository has no GitHub remote. The workflow files parse as valid YAML, and one bug in them was found and fixed by reading (the smoke test expected the wrong status code), so others may remain.
 - **No Maven dependency vulnerability scan.**
 - **Argon2id cost on a phone.** Measured on one laptop only: 223 ms median.
 - **Timing differences over a network.** Measured in-process: 2 to 4 ms between known and unknown emails.
@@ -98,7 +97,6 @@ Each has a regression test unless noted.
 ## Before using this for anything real
 
 1. Commission an independent security review of the cryptography and the server.
-2. Push to GitHub and get every CI job, CodeQL, and secret scanning passing.
-3. Deploy behind TLS with the `prod` profile, HSTS, and real SMTP, and re-run the end-to-end suite there.
-4. Benchmark Argon2id on phones and adjust if unlock is too slow.
-5. Get an independent review of the backup format too: it was added after the Phase 6 self-review.
+2. Deploy behind TLS with the `prod` profile, HSTS, and real SMTP, and re-run the end-to-end suite there.
+3. Benchmark Argon2id on phones and adjust if unlock is too slow.
+4. Get an independent review of the backup format too: it was added after the Phase 6 self-review.

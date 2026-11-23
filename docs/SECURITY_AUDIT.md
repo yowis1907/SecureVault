@@ -60,6 +60,16 @@ Test gaps closed in this phase: clipboard clearing (delay, restart, clear on loc
 | K | The `prod` profile was never started | Its startup check is unit-tested only |
 | L | Rollback or deletion of records by a malicious server is not detected | Known design limit, scenario 10 |
 
+## Found after the audit
+
+Once the repository was on GitHub and CI ran for the first time (2026-11-22), these turned up:
+
+| # | Severity | Finding | Fix |
+|---|---|---|---|
+| 4 | Medium | Both CodeQL steps were pinned to `f3bbb05`, under a comment naming v4.39.3. That commit is not in any branch or tag of `github/codeql-action`, and the GitHub API cannot find it there, yet Actions downloaded and ran it with `security-events: write`. The real v4.39.3 is `33d7b85`. The SHA came in with the first commit of the workflow files. Where it came from is not known; most likely it was written by mistake, and nothing checked it. A pinned SHA only helps if it is the reviewed release | Pinned to `33d7b85`. A new CI job, `action-pins`, resolves the tag in each action's own repository and fails if the SHA differs, if the tag does not exist, or if an action is not pinned. It was tested against the old pin, a tag reference, a missing comment, and an unknown tag. The other six pins matched |
+| 5 | Low | CodeQL failed on every run because it lacked `actions: read`, and the secret scan failed on every pull request because it lacked `pull-requests: read`. Dependabot pull requests could not pass | Each job now asks for exactly these. On a private repository without code scanning, CodeQL keeps its results as a workflow artifact instead of uploading them |
+| 6 | Low | The e2e job did not typecheck or format-check the tests, so a TypeScript upgrade that broke them could pass | Both run before the stack is built |
+
 ## Threat model status
 
 Tested means an automated test exercises the mitigation. Reviewed means it was checked by reading or probing, without a dedicated test. Accepted means the risk stands.
