@@ -50,6 +50,7 @@ test('register, store, refresh, edit, and delete without the server seeing any s
     }
   });
   test.info().annotations.push({ type: 'trusted types', description: sink });
+  console.log(`Trusted Types probe: ${sink}`);
   expect(['TypeError', 'no trusted types']).toContain(sink);
 
   // Create.
