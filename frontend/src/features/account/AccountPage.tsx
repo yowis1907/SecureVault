@@ -27,9 +27,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="grid gap-4 border-t border-line pt-6 md:grid-cols-[14rem_1fr] md:gap-8">
+    <section className="glass grid gap-4 p-7 md:grid-cols-[14rem_1fr] md:gap-8 sm:p-9">
       <div>
-        <h2 className="font-semibold">{title}</h2>
+        <h2 className="text-[1.0625rem] font-semibold">{title}</h2>
         {description ? <p className="mt-1 text-sm text-muted">{description}</p> : null}
       </div>
       <div className="min-w-0">{children}</div>
@@ -264,7 +264,7 @@ export function AccountPage() {
   return (
     <div className="flex max-w-4xl flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Account</h1>
+        <h1 className="text-[2.5rem] leading-tight font-semibold">Account</h1>
         {me.data ? <p className="mt-1 break-all text-muted">{me.data.email}</p> : null}
       </div>
       <Section

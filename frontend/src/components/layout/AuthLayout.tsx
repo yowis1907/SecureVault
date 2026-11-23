@@ -1,29 +1,20 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
-import { SceneBackdrop } from '../scene/SceneBackdrop';
 import { Wordmark } from './Wordmark';
 
 /**
- * Sign-in, sign-up, and unlock: the form on the left, the vault on the right under the same
- * spotlight as the landing page. On narrow screens the vault is left out and the form is alone.
+ * Sign-in, sign-up, and unlock: one liquid glass card in the middle of the wallpaper, with the
+ * wordmark top left and an optional action top right.
  */
 export function AuthBackdrop({ header, children }: { header?: ReactNode; children: ReactNode }) {
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-x-clip">
-      <div
-        className="spotlight pointer-events-none absolute inset-x-0 top-0 h-screen"
-        aria-hidden="true"
-      />
-      <header className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
+    <div className="flex min-h-dvh flex-col">
+      <header className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6">
         <Wordmark />
         {header}
       </header>
-      <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 px-6 pb-12 lg:grid-cols-[minmax(0,28rem)_1fr]">
-        <div className="flex w-full justify-center lg:justify-start">{children}</div>
-        <SceneBackdrop
-          intensity="ambient"
-          className="relative hidden h-[min(70vh,620px)] lg:block"
-        />
+      <div className="flex flex-1 items-start justify-center px-4 pt-[6vh] pb-16 sm:items-center sm:pt-0">
+        {children}
       </div>
     </div>
   );
@@ -42,12 +33,14 @@ export function AuthLayout({
 }) {
   return (
     <AuthBackdrop>
-      <main id="main" className="panel rise w-full max-w-md p-7 sm:p-9">
-        <h1 className="display text-3xl font-semibold">{title}</h1>
-        {intro ? <div className="mt-3 text-muted">{intro}</div> : null}
+      <main id="main" className="glass rise w-full max-w-[440px] p-8 sm:p-10">
+        <h1 className="text-[2.5rem] leading-[1.1] font-semibold">{title}</h1>
+        {intro ? <div className="mt-3 text-[0.9375rem] text-muted">{intro}</div> : null}
         <div className="mt-8">{children}</div>
         {footer ? (
-          <div className="mt-8 border-t border-line pt-6 text-sm text-muted">{footer}</div>
+          <div className="mt-8 border-t border-line/70 pt-6 text-center text-[0.9375rem] text-muted">
+            {footer}
+          </div>
         ) : null}
       </main>
     </AuthBackdrop>

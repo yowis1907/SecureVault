@@ -29,9 +29,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="grid gap-4 border-t border-line pt-6 md:grid-cols-[14rem_1fr] md:gap-8">
+    <section className="glass grid gap-4 p-7 md:grid-cols-[14rem_1fr] md:gap-8 sm:p-9">
       <div>
-        <h2 className="font-semibold">{title}</h2>
+        <h2 className="text-[1.0625rem] font-semibold">{title}</h2>
         {description ? <p className="mt-1 text-sm text-muted">{description}</p> : null}
       </div>
       <div className="min-w-0">{children}</div>
@@ -47,7 +47,7 @@ function Appearance() {
       {(['system', 'light', 'dark'] as const).map((value) => (
         <label
           key={value}
-          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-line px-3 py-2 text-sm has-[:checked]:border-accent has-[:checked]:bg-accent-soft"
+          className="flex cursor-pointer items-center gap-2 rounded-full border border-line/70 bg-surface/50 px-4 py-2 text-sm has-[:checked]:border-accent has-[:checked]:bg-accent-soft"
         >
           <input
             type="radio"
@@ -104,7 +104,7 @@ function LockAndClipboard() {
             onChange={(e) => {
               setAutoLock(Number(e.target.value));
             }}
-            className="h-10 rounded-[var(--radius-control)] border border-line bg-surface px-3 font-normal"
+            className="h-11 rounded-full border border-line/70 bg-surface/70 px-4 font-normal"
           >
             {AUTO_LOCK.map((m) => (
               <option key={m} value={m}>
@@ -120,7 +120,7 @@ function LockAndClipboard() {
             onChange={(e) => {
               setClipboard(Number(e.target.value));
             }}
-            className="h-10 rounded-[var(--radius-control)] border border-line bg-surface px-3 font-normal"
+            className="h-11 rounded-full border border-line/70 bg-surface/70 px-4 font-normal"
           >
             {CLIPBOARD.map((s) => (
               <option key={s} value={s}>
@@ -252,7 +252,7 @@ function MasterPassword() {
 export function SettingsPage() {
   return (
     <div className="flex max-w-4xl flex-col gap-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+      <h1 className="text-[2.5rem] leading-tight font-semibold">Settings</h1>
       <Section title="Appearance" description="Saved in this browser only.">
         <Appearance />
       </Section>

@@ -1,81 +1,113 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/atkinson-hyperlegible-next';
+@import '@fontsource-variable/inter';
 @import '@fontsource-variable/atkinson-hyperlegible-mono';
-@import '@fontsource-variable/bricolage-grotesque';
 
 /*
- * SecureVault tokens: "a precision instrument" under a single light.
- * Warm graphite neutrals and one champagne accent, the colour of a brushed brass vault door.
- * Colour carries meaning only: champagne = unlocked/primary, amber = weak or expiring, red = danger.
- * Atkinson Hyperlegible was drawn so that l, I, 1, O and 0 cannot be confused, which matters for
- * reading and typing passwords.
+ * SecureVault tokens: light, quiet, and layered in liquid glass.
+ *
+ * Apple's neutral greys, one blue accent, and frosted panels over a soft pastel wallpaper.
+ * Text uses the system face (SF Pro on Apple devices) with Inter as the fallback everywhere
+ * else. Secrets use Atkinson Hyperlegible Mono, drawn so that l, I, 1, O and 0 cannot be confused.
+ * Colour carries meaning only: blue = primary or unlocked, amber = weak, red = danger.
  *
  * Themes switch by redefining these variables; components never use a dark: variant.
  */
 :root {
   color-scheme: light;
-  --sv-bg: #f3f1ed;
+  --sv-bg: #f5f5f7;
   --sv-surface: #ffffff;
-  --sv-surface-2: #ebe8e2;
-  --sv-line: #dedad2;
-  --sv-text: #16161a;
-  --sv-muted: #5d5a54;
-  --sv-accent: #86652d;
-  --sv-accent-strong: #6b4f20;
+  --sv-surface-2: #ebebf0;
+  --sv-line: #d2d2d7;
+  --sv-text: #1d1d1f;
+  --sv-muted: #6e6e73;
+  --sv-accent: #0071e3;
+  --sv-accent-fill: #0071e3;
+  --sv-accent-strong: #0062c4;
   --sv-on-accent: #ffffff;
-  --sv-accent-soft: #f1e8d8;
-  --sv-warn: #8a5a0b;
-  --sv-warn-soft: #f1e3c8;
-  --sv-danger: #a23a2f;
-  --sv-danger-soft: #f2d9d5;
-  --sv-spot: rgb(255 255 255 / 0.9);
+  --sv-accent-soft: #e8f1fd;
+  --sv-success: #248a3d;
+  --sv-warn: #a15500;
+  --sv-warn-soft: #fdf0dc;
+  --sv-danger: #d70015;
+  --sv-danger-soft: #fde7e8;
+
+  --sv-glass: rgb(255 255 255 / 0.5);
+  --sv-glass-strong: rgb(255 255 255 / 0.72);
+  --sv-glass-edge: rgb(255 255 255 / 0.85);
+  --sv-glass-shine: rgb(255 255 255 / 0.55);
+  --sv-shadow: 28 30 51;
+  --sv-wp-1: #c3dbff;
+  --sv-wp-2: #e4d9ff;
+  --sv-wp-3: #ffe2cf;
+  --sv-wp-4: #cfefe4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --sv-bg: #0b0b0d;
-    --sv-surface: #151518;
-    --sv-surface-2: #1e1e22;
-    --sv-line: #2b2b31;
-    --sv-text: #f3f1ec;
-    --sv-muted: #a09d96;
-    --sv-accent: #d9bd8c;
-    --sv-accent-strong: #efd7ad;
-    --sv-on-accent: #1b150b;
-    --sv-accent-soft: #2c261c;
-    --sv-warn: #e7b25c;
+    --sv-bg: #0b0b0f;
+    --sv-surface: #1c1c1e;
+    --sv-surface-2: #2c2c2e;
+    --sv-line: #3a3a3c;
+    --sv-text: #f5f5f7;
+    --sv-muted: #a1a1a6;
+    --sv-accent: #4c9bff;
+    --sv-accent-fill: #0a64d6;
+    --sv-accent-strong: #7db5ff;
+    --sv-on-accent: #ffffff;
+    --sv-accent-soft: #12284a;
+    --sv-success: #32d74b;
+    --sv-warn: #ffb340;
     --sv-warn-soft: #3a2e17;
-    --sv-danger: #ee8e80;
+    --sv-danger: #ff6961;
     --sv-danger-soft: #3d2320;
-    --sv-spot: rgb(255 244 222 / 0.07);
+    --sv-glass: rgb(44 44 48 / 0.5);
+    --sv-glass-strong: rgb(44 44 48 / 0.78);
+    --sv-glass-edge: rgb(255 255 255 / 0.12);
+    --sv-glass-shine: rgb(255 255 255 / 0.1);
+    --sv-shadow: 0 0 0;
+    --sv-wp-1: #1b2c4d;
+    --sv-wp-2: #2a2147;
+    --sv-wp-3: #3a2a22;
+    --sv-wp-4: #163329;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --sv-bg: #0b0b0d;
-  --sv-surface: #151518;
-  --sv-surface-2: #1e1e22;
-  --sv-line: #2b2b31;
-  --sv-text: #f3f1ec;
-  --sv-muted: #a09d96;
-  --sv-accent: #d9bd8c;
-  --sv-accent-strong: #efd7ad;
-  --sv-on-accent: #1b150b;
-  --sv-accent-soft: #2c261c;
-  --sv-warn: #e7b25c;
+  --sv-bg: #0b0b0f;
+  --sv-surface: #1c1c1e;
+  --sv-surface-2: #2c2c2e;
+  --sv-line: #3a3a3c;
+  --sv-text: #f5f5f7;
+  --sv-muted: #a1a1a6;
+  --sv-accent: #4c9bff;
+  --sv-accent-fill: #0a64d6;
+  --sv-accent-strong: #7db5ff;
+  --sv-on-accent: #ffffff;
+  --sv-accent-soft: #12284a;
+  --sv-success: #32d74b;
+  --sv-warn: #ffb340;
   --sv-warn-soft: #3a2e17;
-  --sv-danger: #ee8e80;
+  --sv-danger: #ff6961;
   --sv-danger-soft: #3d2320;
-  --sv-spot: rgb(255 244 222 / 0.07);
+  --sv-glass: rgb(44 44 48 / 0.5);
+  --sv-glass-strong: rgb(44 44 48 / 0.78);
+  --sv-glass-edge: rgb(255 255 255 / 0.12);
+  --sv-glass-shine: rgb(255 255 255 / 0.1);
+  --sv-shadow: 0 0 0;
+  --sv-wp-1: #1b2c4d;
+  --sv-wp-2: #2a2147;
+  --sv-wp-3: #3a2a22;
+  --sv-wp-4: #163329;
 }
 
 @theme inline {
-  --font-sans: 'Atkinson Hyperlegible Next Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', system-ui, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Variable', system-ui, sans-serif;
   --font-mono: 'Atkinson Hyperlegible Mono Variable', ui-monospace, monospace;
-  /* Headings only. Body text and secrets stay in Atkinson, which keeps l, I, 1, O and 0 apart. */
-  --font-display: 'Bricolage Grotesque Variable', 'Atkinson Hyperlegible Next Variable', sans-serif;
 
   --color-bg: var(--sv-bg);
   --color-surface: var(--sv-surface);
@@ -84,25 +116,27 @@
   --color-text: var(--sv-text);
   --color-muted: var(--sv-muted);
   --color-accent: var(--sv-accent);
+  --color-accent-fill: var(--sv-accent-fill);
   --color-accent-strong: var(--sv-accent-strong);
   --color-on-accent: var(--sv-on-accent);
   --color-accent-soft: var(--sv-accent-soft);
+  --color-success: var(--sv-success);
   --color-warn: var(--sv-warn);
   --color-warn-soft: var(--sv-warn-soft);
   --color-danger: var(--sv-danger);
   --color-danger-soft: var(--sv-danger-soft);
 
-  /* A 1.25 scale from a 16px base. */
-  --text-xs: 0.8rem;
+  /* Apple's type ramp, in rem from a 16px base. */
+  --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5625rem;
-  --text-2xl: 1.953rem;
-  --text-3xl: 2.441rem;
+  --text-lg: 1.3125rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+  --text-3xl: 3.5rem;
 
-  --radius-control: 10px;
-  --radius-panel: 22px;
+  --radius-control: 12px;
+  --radius-panel: 28px;
 }
 
 @layer base {
@@ -110,20 +144,36 @@
     background: var(--sv-bg);
     color: var(--sv-text);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     min-height: 100dvh;
     line-height: 1.5;
+    letter-spacing: -0.01em;
+  }
+
+  /* The wallpaper: soft pastel light that the glass panels blur and tint. Fixed behind every
+     page, drawn once with gradients so it costs nothing while scrolling. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(52% 58% at 90% 0%, var(--sv-wp-1), transparent 70%),
+      radial-gradient(52% 58% at 0% 64%, var(--sv-wp-2), transparent 70%),
+      radial-gradient(48% 50% at 50% 106%, var(--sv-wp-3), transparent 70%),
+      radial-gradient(40% 48% at 102% 80%, var(--sv-wp-4), transparent 70%), var(--sv-bg);
   }
 
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   :focus-visible {
@@ -136,7 +186,8 @@
   }
 
   dialog::backdrop {
-    background: rgb(10 12 13 / 0.55);
+    background: rgb(20 20 24 / 0.3);
+    backdrop-filter: blur(6px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -149,14 +200,73 @@
   }
 }
 
-/* The lock fuse: a bar that burns down toward auto-lock. Width comes from a CSS variable that
-   React sets through the style object (CSSOM), which the CSP allows. */
 @layer components {
+  /*
+   * Liquid glass. A translucent fill that blurs and saturates whatever is behind it, a bright
+   * hairline edge, an inner highlight along the top, a sheen from the top-left corner, and a
+   * long soft shadow. `.panel` is the same material, kept for older markup.
+   */
+  .glass,
+  .panel {
+    position: relative;
+    isolation: isolate;
+    background: var(--sv-glass);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--sv-glass-edge);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      inset 0 1px 0 0 var(--sv-glass-shine),
+      0 18px 48px -16px rgb(var(--sv-shadow) / 0.14),
+      0 2px 6px rgb(var(--sv-shadow) / 0.04);
+  }
+  .glass::before,
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(155deg, var(--sv-glass-shine), transparent 38%);
+  }
+
+  /* Thinner glass for small controls: pills, chips, icon buttons, search. */
+  .glass-clear {
+    position: relative;
+    background: var(--sv-glass);
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    backdrop-filter: blur(14px) saturate(170%);
+    border: 1px solid var(--sv-glass-edge);
+    box-shadow:
+      inset 0 1px 0 0 var(--sv-glass-shine),
+      0 6px 18px -6px rgb(var(--sv-shadow) / 0.12);
+  }
+
+  /* Denser glass for bars that sit over content: the app header and the phone tab bar. */
+  .glass-bar {
+    background: var(--sv-glass-strong);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid var(--sv-glass-edge);
+    box-shadow:
+      inset 0 1px 0 0 var(--sv-glass-shine),
+      0 12px 32px -10px rgb(var(--sv-shadow) / 0.18);
+  }
+
+  /* Filled rows inside glass: a more opaque white well, like a grouped table on iOS. */
+  .well {
+    background: color-mix(in oklab, var(--sv-surface) 62%, transparent);
+    border-radius: 20px;
+  }
+
+  /* The lock fuse: a bar that burns down toward auto-lock. Width comes from a CSS variable
+     that React sets through the style object (CSSOM), which the CSP allows. */
   .fuse {
     --fuse: 1;
     position: relative;
-    height: 3px;
-    background: var(--sv-line);
+    height: 4px;
+    background: color-mix(in oklab, var(--sv-line) 70%, transparent);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -167,76 +277,65 @@
     transform-origin: left center;
     transform: scaleX(var(--fuse));
     background: var(--sv-accent);
+    border-radius: inherit;
     transition: transform 1s linear;
   }
   .fuse[data-low='true']::after {
     background: var(--sv-warn);
   }
 
-  /* Headings in the display face, with optical sizing doing the work at large sizes. */
   .display {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
     letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
-  /* A small mono label above a heading. */
+  /* A small accent label above a heading. */
   .eyebrow {
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
     color: var(--sv-accent);
   }
 
-  /* A mat panel: solid surface, large radius, a hairline top highlight, and a long soft shadow,
-     like an object resting under a single light. */
-  .panel {
+  /* An iOS-style switch drawn on a native checkbox, so it keeps keyboard and form behaviour. */
+  .switch {
+    appearance: none;
     position: relative;
-    background: var(--sv-surface);
-    border: 1px solid var(--sv-line);
-    border-radius: var(--radius-panel);
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
-      0 1px 2px rgb(0 0 0 / 0.12),
-      0 30px 80px -40px rgb(0 0 0 / 0.6);
+    flex: none;
+    width: 51px;
+    height: 31px;
+    border-radius: 999px;
+    background: var(--sv-line);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
   }
-
-  /* A warm pool of light behind the hero vault, so it reads as lit on a stage. */
-  .vault-stage {
-    background: radial-gradient(
-      circle at 50% 48%,
-      color-mix(in oklab, var(--sv-accent) 16%, transparent),
-      transparent 58%
-    );
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+    transition: transform 0.25s cubic-bezier(0.3, 0.7, 0.4, 1.3);
   }
-
-  /* One soft spotlight from above, the only background decoration. CSS only. */
-  .spotlight {
-    background: radial-gradient(ellipse 70% 55% at 50% -10%, var(--sv-spot), transparent 70%);
+  .switch:checked {
+    background: var(--sv-success);
   }
-
-  /* 3D tilt toward the pointer. --rx and --ry are set through CSSOM by useTilt. */
-  .tilt {
-    --rx: 0deg;
-    --ry: 0deg;
-    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
-    transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-    will-change: transform;
+  .switch:checked::after {
+    transform: translateX(20px);
   }
-  .tilt[data-active='true'] {
-    transition-duration: 0.08s;
-  }
-  .tilt-pop {
-    transform: translateZ(14px);
+  .switch:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 
   /* Revealed once when scrolled into view (useReveal). Children can stagger with --i. */
   .reveal {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(16px);
     transition:
       opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
       transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -247,52 +346,7 @@
     transform: none;
   }
 
-  /* Primary call to action: a slow light sweep and a soft accent glow on hover. */
-  .cta {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--sv-accent) 0%, transparent);
-    transition:
-      box-shadow 0.25s ease,
-      transform 0.15s ease,
-      background-color 0.15s ease;
-  }
-  .cta::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(
-      110deg,
-      transparent 30%,
-      color-mix(in oklab, white 35%, transparent) 50%,
-      transparent 70%
-    );
-    transform: translateX(-120%);
-    transition: transform 0.7s ease;
-  }
-  .cta:hover {
-    box-shadow: 0 0 32px -6px color-mix(in oklab, var(--sv-accent) 70%, transparent);
-  }
-  .cta:hover::before {
-    transform: translateX(120%);
-  }
-  .cta:active {
-    transform: scale(0.97);
-  }
-
-  /* Freshly changed ciphertext flashes once, so typing visibly changes every byte. */
-  @keyframes cipher-flash {
-    from {
-      color: var(--sv-accent);
-    }
-  }
-  .cipher-flash {
-    animation: cipher-flash 0.6s ease-out;
-  }
-
-  /* Entrance for lists inside the app: short, staggered by --i, capped by the component. */
+  /* Short entrance for panels and list rows, staggered by --i. */
   @keyframes rise {
     from {
       opacity: 0;
@@ -304,8 +358,35 @@
     animation-delay: calc(var(--i, 0) * 35ms);
   }
 
-  /* A wrong master password: a short horizontal shake. Two identical animations, alternated,
-     so a second failure restarts it without remounting the form. */
+  /* Freshly changed ciphertext flashes once. */
+  @keyframes cipher-flash {
+    from {
+      color: var(--sv-accent);
+    }
+  }
+  .cipher-flash {
+    animation: cipher-flash 0.6s ease-out;
+  }
+
+  /* One turn of the refresh icon per click; two identical animations, alternated. */
+  @keyframes spin-once-a {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes spin-once-b {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .spin-once-a {
+    animation: spin-once-a 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .spin-once-b {
+    animation: spin-once-b 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* A wrong master password: a short shake, alternated the same way. */
   @keyframes shake-a {
     20%,
     60% {
@@ -326,24 +407,6 @@
       transform: translateX(7px);
     }
   }
-  /* One turn of the refresh icon per click; alternated like the shake. */
-  @keyframes spin-once-a {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @keyframes spin-once-b {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  .spin-once-a {
-    animation: spin-once-a 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .spin-once-b {
-    animation: spin-once-b 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
   .shake-a {
     animation: shake-a 0.4s ease-in-out;
   }
@@ -351,10 +414,18 @@
     animation: shake-b 0.4s ease-in-out;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .tilt {
-      transform: none;
+  /* The unlock disc breathes while the key is being derived. */
+  @keyframes breathe {
+    50% {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 10px color-mix(in oklab, var(--sv-accent) 14%, transparent);
     }
+  }
+  .breathe {
+    animation: breathe 1.4s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
     .reveal {
       opacity: 1;
       transform: none;

@@ -1,10 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
-import { useEffect, useState, type SyntheticEvent } from 'react';
 import { clsx } from 'clsx';
+import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
+import { useState, type SyntheticEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { AuthBackdrop } from '../../components/layout/AuthLayout';
-import { setSceneMode } from '../../components/scene/signal';
 import { Button } from '../../components/ui/Button';
 import { PasswordField } from '../../components/ui/Field';
 import { auth } from '../../lib/api/endpoints';
@@ -24,13 +23,6 @@ export function UnlockPage() {
   const [opened, setOpened] = useState(false);
   const [shake, setShake] = useState(0);
   const reducedMotion = useReducedMotion();
-
-  useEffect(
-    () => () => {
-      setSceneMode('idle');
-    },
-    [],
-  );
   const from = (location.state as { from?: string } | null)?.from;
 
   async function submit(event: SyntheticEvent) {
@@ -41,20 +33,16 @@ export function UnlockPage() {
     }
     setBusy(true);
     setError(null);
-    setSceneMode('deriving');
     try {
       await unlock(password);
       setPassword('');
       setOpened(true);
-      setSceneMode('open');
-      // A short beat so the vault visibly opens before the page changes.
-      if (!reducedMotion) await new Promise((r) => setTimeout(r, 700));
+      // A short beat so the lock visibly opens before the page changes.
+      if (!reducedMotion) await new Promise((r) => setTimeout(r, 350));
       void navigate(from?.startsWith('/app') ? from : '/app', { replace: true });
     } catch (e) {
-      setSceneMode('error');
       setShake((n) => n + 1);
       setError(messageFor(e));
-      setSceneMode('idle');
     } finally {
       setBusy(false);
     }
@@ -76,68 +64,75 @@ export function UnlockPage() {
         <button
           type="button"
           onClick={() => void signOut()}
-          className="rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-text"
+          className="glass-clear rounded-full px-5 py-2.5 text-sm font-medium transition-colors hover:bg-[var(--sv-glass-strong)]"
         >
           Sign out
         </button>
       }
     >
-      <main id="main" className="w-full max-w-md">
+      <main id="main" className="w-full max-w-[420px]">
         <form
           noValidate
           onSubmit={(e) => void submit(e)}
           className={clsx(
-            'panel rise flex w-full flex-col gap-5 p-7 sm:p-9',
+            'glass rise flex w-full flex-col items-center gap-5 px-8 pt-12 pb-9 sm:px-10',
             shake > 0 && (shake % 2 ? 'shake-a' : 'shake-b'),
           )}
         >
-          <div className="flex items-center gap-3">
+          {/* A glass disc over a soft accent halo; it breathes while the key is derived. */}
+          <div className="relative mb-1 size-24" aria-hidden="true">
             <span
               className={clsx(
-                'flex size-12 items-center justify-center rounded-full border text-accent transition-all duration-500',
-                opened
-                  ? 'scale-110 border-accent bg-accent-soft shadow-[0_0_30px_-4px_var(--sv-accent)]'
-                  : busy
-                    ? 'animate-pulse border-accent/60 bg-surface'
-                    : 'border-line bg-surface',
+                'absolute inset-2 rounded-full bg-accent/40 blur-xl transition-opacity duration-500',
+                opened ? 'opacity-100' : 'opacity-70',
+              )}
+            />
+            <span
+              className={clsx(
+                'glass-clear absolute inset-0 flex items-center justify-center rounded-full transition-colors duration-500',
+                busy && 'breathe',
+                opened ? 'text-accent' : 'text-text',
               )}
             >
               {opened ? (
-                <LockKeyholeOpen size={22} aria-hidden="true" />
+                <LockKeyholeOpen size={36} strokeWidth={1.75} />
               ) : (
-                <LockKeyhole size={22} aria-hidden="true" />
+                <LockKeyhole size={36} strokeWidth={1.75} />
               )}
             </span>
-            <div>
-              <h1 className="display text-3xl font-semibold">
-                {opened ? 'Vault open' : 'Vault locked'}
-              </h1>
-              {me.data ? <p className="text-sm break-all text-muted">{me.data.email}</p> : null}
-            </div>
           </div>
-          <PasswordField
-            label="Master password"
-            // Discourages the browser from offering to save the master password.
-            autoComplete="off"
-            autoFocus
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            hint="Your vault is decrypted on this device. The master password is never sent."
-            error={error ?? undefined}
-          />
-          <Button type="submit" busy={busy}>
+          <div className="text-center">
+            <h1 className="text-[2.5rem] leading-[1.1] font-semibold">
+              {opened ? 'Vault open' : 'Vault locked'}
+            </h1>
+            {me.data ? (
+              <p className="mt-1 text-[0.9375rem] break-all text-muted">{me.data.email}</p>
+            ) : null}
+          </div>
+          <div className="w-full">
+            <PasswordField
+              label="Master password"
+              // Discourages the browser from offering to save the master password.
+              autoComplete="off"
+              autoFocus
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+              error={error ?? undefined}
+            />
+          </div>
+          <Button type="submit" busy={busy} className="w-full">
             {busy ? 'Unlocking' : 'Unlock'}
           </Button>
-          {busy ? (
-            <p role="status" className="text-sm text-muted">
-              Deriving your key. This deliberately takes a moment.
-            </p>
-          ) : null}
+          <p role="status" className="max-w-[18rem] text-center text-[0.8125rem] text-muted">
+            {busy
+              ? 'Deriving your key. This deliberately takes a moment.'
+              : 'Your vault is decrypted on this device. The master password is never sent.'}
+          </p>
           <Link
             to="/reset-vault"
-            className="text-sm text-muted underline-offset-4 hover:text-text hover:underline"
+            className="text-[0.9375rem] font-medium text-muted underline-offset-4 hover:text-text hover:underline"
           >
             Forgot your master password?
           </Link>

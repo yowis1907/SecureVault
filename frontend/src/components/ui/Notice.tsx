@@ -25,11 +25,7 @@ export function Notice({
   return (
     <div
       role={tone === 'danger' ? 'alert' : undefined}
-      className={clsx(
-        'rounded-[var(--radius-control)] border-l-4 px-4 py-3 text-sm',
-        tones[tone],
-        className,
-      )}
+      className={clsx('rounded-2xl px-4 py-3 text-sm', tones[tone], className)}
     >
       {title ? <p className="font-semibold">{title}</p> : null}
       {children ? <div className={clsx(title && 'mt-1')}>{children}</div> : null}

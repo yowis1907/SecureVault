@@ -7,31 +7,38 @@ import {
   Settings,
   ShieldCheck,
   UserRound,
-  Wand2,
+  WandSparkles,
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
+import { Wordmark } from '../components/layout/Wordmark';
 import { auth } from '../lib/api/endpoints';
+import { useCurrentUser } from '../lib/api/queries';
+import { useMediaQuery } from '../lib/motion';
 import { useUnlockedVault } from '../vault-session/hooks';
 import { lock, touch } from '../vault-session/session';
-import { useCurrentUser } from '../lib/api/queries';
 import { LockFuse } from './LockFuse';
-import { Wordmark } from '../components/layout/Wordmark';
 
 const NAV = [
   { to: '/app', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/app/vault', label: 'Vault', icon: KeyRound, end: false },
-  { to: '/app/generator', label: 'Generator', icon: Wand2, end: false },
+  { to: '/app/generator', label: 'Generator', icon: WandSparkles, end: false },
   { to: '/app/security', label: 'Security', icon: ShieldCheck, end: false },
   { to: '/app/settings', label: 'Settings', icon: Settings, end: false },
   { to: '/app/account', label: 'Account', icon: UserRound, end: false },
 ] as const;
 
+/**
+ * The unlocked app: a floating liquid glass sidebar on wide screens, and on phones a glass
+ * header with the lock fuse plus a floating glass tab bar at the bottom.
+ */
 export function AppShell() {
   const vault = useUnlockedVault();
   const me = useCurrentUser();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  // One lock fuse at a time: in the sidebar on wide screens, in the header on phones.
+  const wide = useMediaQuery('(min-width: 768px)');
 
   // Any keyboard or pointer activity pushes auto-lock back.
   useEffect(() => {
@@ -53,37 +60,21 @@ export function AppShell() {
   }
 
   return (
-    <div className="relative flex min-h-dvh flex-col">
-      <div
-        className="spotlight pointer-events-none fixed inset-x-0 top-0 h-[70vh]"
-        aria-hidden="true"
-      />
+    <div className="min-h-dvh md:flex md:gap-5 md:p-5">
       <a
         href="#main"
-        className="sr-only z-50 rounded-[var(--radius-control)] bg-surface px-3 py-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        className="sr-only z-50 rounded-full bg-surface px-4 py-2 focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
       >
         Skip to content
       </a>
-      <header className="sticky top-0 z-30 border-b border-line/70 bg-bg/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-          <Wordmark to="/app" />
-          <div className="flex items-center gap-2">
-            <LockFuse lockAt={vault.lockAt} minutes={vault.settings.autoLockMinutes} />
-            <button
-              type="button"
-              onClick={() => void signOut()}
-              className="hidden items-center gap-2 rounded-[var(--radius-control)] px-3 py-2 text-sm text-muted hover:bg-surface-2 hover:text-text sm:flex"
-              title={me.data ? `Signed in as ${me.data.email}` : undefined}
-            >
-              <LogOut size={16} aria-hidden="true" /> Sign out
-            </button>
-          </div>
-        </div>
-      </header>
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-8 px-4 pb-24 md:pb-8">
-        <nav aria-label="Main" className="sticky top-16 hidden h-fit w-48 shrink-0 py-6 md:block">
-          <ul className="flex flex-col gap-0.5">
+      {/* Sidebar, from md up. */}
+      <aside className="glass sticky top-5 hidden h-[calc(100dvh-2.5rem)] w-[248px] flex-none flex-col p-3.5 md:flex">
+        <div className="px-2.5 pt-1.5 pb-6">
+          <Wordmark to="/app" />
+        </div>
+        <nav aria-label="Main" className="flex-1">
+          <ul className="flex flex-col gap-1">
             {NAV.map(({ to, label, icon: Icon, end }) => (
               <li key={to}>
                 <NavLink
@@ -91,53 +82,81 @@ export function AppShell() {
                   end={end}
                   className={({ isActive }) =>
                     clsx(
-                      'group flex items-center gap-2.5 rounded-[var(--radius-control)] px-3 py-2 text-sm transition-all duration-200',
+                      'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[0.9375rem] transition-colors',
                       isActive
-                        ? 'bg-surface font-semibold text-text shadow-[inset_2px_0_0_var(--sv-accent),0_0_24px_-12px_var(--sv-accent)]'
-                        : 'text-muted hover:translate-x-0.5 hover:bg-surface-2 hover:text-text',
+                        ? 'bg-surface/85 font-medium text-text shadow-[0_2px_8px_rgb(var(--sv-shadow)/0.06)]'
+                        : 'text-muted hover:bg-[var(--sv-glass)] hover:text-text',
                     )
                   }
                 >
-                  <Icon
-                    size={17}
-                    aria-hidden="true"
-                    className="transition-transform duration-200 group-hover:scale-110"
-                  />
-                  {label}
+                  {({ isActive }) => (
+                    <>
+                      <Icon
+                        size={20}
+                        strokeWidth={1.75}
+                        aria-hidden="true"
+                        className={isActive ? 'text-accent' : undefined}
+                      />
+                      {label}
+                    </>
+                  )}
                 </NavLink>
               </li>
             ))}
-            <li className="mt-4 border-t border-line pt-4">
-              <button
-                type="button"
-                onClick={() => void signOut()}
-                className="flex w-full items-center gap-2.5 rounded-[var(--radius-control)] px-3 py-2 text-sm text-muted hover:bg-surface-2 hover:text-text"
-              >
-                <LogOut size={17} aria-hidden="true" /> Sign out
-              </button>
-            </li>
           </ul>
         </nav>
+        {wide ? <LockFuse lockAt={vault.lockAt} minutes={vault.settings.autoLockMinutes} /> : null}
+        <button
+          type="button"
+          onClick={() => void signOut()}
+          title={me.data ? `Signed in as ${me.data.email}` : undefined}
+          className="mt-1 flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[0.9375rem] text-muted transition-colors hover:bg-[var(--sv-glass)] hover:text-text"
+        >
+          <LogOut size={20} strokeWidth={1.75} aria-hidden="true" /> Sign out
+        </button>
+      </aside>
 
-        <main id="main" tabIndex={-1} className="rise min-w-0 flex-1 py-6 outline-none">
-          {vault.damaged > 0 ? (
-            <p
-              role="alert"
-              className="mb-4 rounded-[var(--radius-control)] border-l-4 border-warn bg-warn-soft px-4 py-3 text-sm"
+      {/* Phone header. */}
+      {wide ? null : (
+        <header className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between rounded-none border-x-0 border-t-0 px-4 md:hidden">
+          <Wordmark to="/app" />
+          <div className="flex items-center gap-1">
+            <LockFuse
+              lockAt={vault.lockAt}
+              minutes={vault.settings.autoLockMinutes}
+              variant="compact"
+            />
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              aria-label="Sign out"
+              className="rounded-full p-2 text-muted hover:bg-[var(--sv-glass)] hover:text-text"
             >
-              {vault.damaged === 1 ? '1 item' : `${String(vault.damaged)} items`} could not be
-              decrypted and {vault.damaged === 1 ? 'is' : 'are'} hidden. The data may be damaged or
-              may have been changed on the server.
-            </p>
-          ) : null}
-          <Outlet />
-        </main>
-      </div>
+              <LogOut size={18} aria-hidden="true" />
+            </button>
+          </div>
+        </header>
+      )}
 
-      {/* Phone navigation: a bottom bar, since a side rail does not fit. */}
+      <main
+        id="main"
+        tabIndex={-1}
+        className="rise min-w-0 flex-1 px-4 pt-6 pb-32 outline-none md:px-3 md:pt-3 md:pb-6"
+      >
+        {vault.damaged > 0 ? (
+          <p role="alert" className="mb-4 rounded-2xl bg-warn-soft px-4 py-3 text-sm">
+            {vault.damaged === 1 ? '1 item' : `${String(vault.damaged)} items`} could not be
+            decrypted and {vault.damaged === 1 ? 'is' : 'are'} hidden. The data may be damaged or
+            may have been changed on the server.
+          </p>
+        ) : null}
+        <Outlet />
+      </main>
+
+      {/* Phone navigation: a floating liquid glass tab bar. */}
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-line/70 bg-surface/80 backdrop-blur-xl md:hidden"
+        className="glass-bar fixed inset-x-3 bottom-5 z-30 rounded-full p-1.5 md:hidden"
       >
         <ul className="grid grid-cols-6">
           {NAV.map(({ to, label, icon: Icon, end }) => (
@@ -147,12 +166,12 @@ export function AppShell() {
                 end={end}
                 className={({ isActive }) =>
                   clsx(
-                    'flex flex-col items-center gap-0.5 py-2 text-[0.7rem]',
-                    isActive ? 'text-accent' : 'text-muted',
+                    'flex flex-col items-center gap-0.5 rounded-full py-1.5 text-[0.6875rem] font-medium transition-colors',
+                    isActive ? 'bg-surface/85 text-accent' : 'text-muted',
                   )
                 }
               >
-                <Icon size={19} aria-hidden="true" />
+                <Icon size={21} strokeWidth={1.75} aria-hidden="true" />
                 {label}
               </NavLink>
             </li>

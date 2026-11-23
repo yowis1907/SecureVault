@@ -1,9 +1,12 @@
-import { Plus, Star } from 'lucide-react';
+import { KeyRound, Plus, Star } from 'lucide-react';
 import { Link } from 'react-router';
 import { EntryRow } from '../../components/EntryRow';
-import { SceneBackdrop } from '../../components/scene/SceneBackdrop';
-import { useCountUp, useTilt } from '../../lib/motion';
+import { useCountUp } from '../../lib/motion';
 import { useUnlockedVault } from '../../vault-session/hooks';
+
+const addClass =
+  'inline-flex h-11 items-center gap-2 rounded-full bg-accent-fill px-5 text-[0.9375rem] font-medium text-on-accent ' +
+  'shadow-[0_6px_18px_-6px_color-mix(in_oklab,var(--sv-accent-fill)_60%,transparent)] transition hover:brightness-110';
 
 function Figure({
   value,
@@ -16,20 +19,18 @@ function Figure({
   to: string;
   state?: unknown;
 }) {
-  const tilt = useTilt<HTMLAnchorElement>(8);
   const shown = useCountUp(value);
   return (
     <Link
-      ref={tilt}
       to={to}
       state={state}
-      className="tilt panel group flex flex-col gap-1 p-5 transition-colors hover:border-accent/50"
+      className="glass group flex flex-col gap-1 p-6 transition-transform duration-300 hover:-translate-y-0.5"
     >
-      <span className="tilt-pop font-mono text-3xl tabular-nums transition-colors group-hover:text-accent">
+      <span className="text-[2.5rem] leading-none font-semibold tracking-tight tabular-nums transition-colors group-hover:text-accent">
         <span className="sr-only">{value}</span>
         <span aria-hidden="true">{shown}</span>
       </span>
-      <span className="text-sm text-muted">{label}</span>
+      <span className="mt-1 text-[0.9375rem] text-muted">{label}</span>
     </Link>
   );
 }
@@ -48,38 +49,31 @@ export function DashboardPage() {
 
   if (vault.logins.length === 0) {
     return (
-      <div className="panel relative grid max-w-3xl overflow-hidden sm:grid-cols-[1.2fr_1fr]">
-        <div className="relative p-8">
-          <p className="eyebrow">Unlocked</p>
-          <h1 className="mt-2 text-3xl font-bold">Your vault is empty</h1>
-          <p className="mt-2 text-muted">
-            Add a login and it is encrypted on this device before it is saved.
-          </p>
-          <Link
-            to="/app/vault/new"
-            className="cta mt-6 inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-accent px-4 py-2.5 font-medium text-on-accent hover:bg-accent-strong"
-          >
-            <Plus size={18} aria-hidden="true" /> Add your first login
-          </Link>
-        </div>
-        <SceneBackdrop intensity="ambient" className="relative h-56 sm:h-auto" />
+      <div className="glass flex max-w-2xl flex-col items-start p-10">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+          <KeyRound size={26} aria-hidden="true" />
+        </span>
+        <h1 className="mt-6 text-[2.5rem] leading-tight font-semibold">Your vault is empty</h1>
+        <p className="mt-2 text-[1.0625rem] text-muted">
+          Add a login and it is encrypted on this device before it is saved.
+        </p>
+        <Link to="/app/vault/new" className={`${addClass} mt-8`}>
+          <Plus size={18} aria-hidden="true" /> Add your first login
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-        <Link
-          to="/app/vault/new"
-          className="cta inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent-strong"
-        >
-          <Plus size={16} aria-hidden="true" /> Add login
+        <h1 className="text-[2.5rem] leading-tight font-semibold">Overview</h1>
+        <Link to="/app/vault/new" className={addClass}>
+          <Plus size={18} aria-hidden="true" /> Add login
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Figure value={vault.logins.length} label="Logins" to="/app/vault" />
         <Figure value={vault.categories.length} label="Categories" to="/app/vault" />
         <Figure
@@ -91,26 +85,29 @@ export function DashboardPage() {
         <Figure value={reusedCount} label="Reused passwords" to="/app/security" />
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-2">
-        <section aria-labelledby="favorites">
-          <h2 id="favorites" className="flex items-center gap-2 font-semibold">
+      <div className="grid gap-5 lg:grid-cols-2">
+        <section aria-labelledby="favorites" className="glass p-3">
+          <h2
+            id="favorites"
+            className="flex items-center gap-2 px-3 pt-2 pb-2 text-[1.0625rem] font-semibold"
+          >
             <Star size={16} aria-hidden="true" className="text-accent" /> Favorites
           </h2>
           {favorites.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">Star a login to keep it here.</p>
+            <p className="px-3 pb-3 text-sm text-muted">Star a login to keep it here.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-line border-y border-line">
+            <ul className="flex flex-col gap-0.5">
               {favorites.map((l, i) => (
                 <EntryRow key={l.id} entry={l} index={i} />
               ))}
             </ul>
           )}
         </section>
-        <section aria-labelledby="recent">
-          <h2 id="recent" className="font-semibold">
+        <section aria-labelledby="recent" className="glass p-3">
+          <h2 id="recent" className="px-3 pt-2 pb-2 text-[1.0625rem] font-semibold">
             Recently changed
           </h2>
-          <ul className="mt-3 divide-y divide-line border-y border-line">
+          <ul className="flex flex-col gap-0.5">
             {recent.map((l, i) => (
               <EntryRow key={l.id} entry={l} index={i} />
             ))}

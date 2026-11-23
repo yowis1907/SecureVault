@@ -21,8 +21,8 @@ function Row({
   action?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-line py-3">
-      <dt className="col-span-2 text-sm text-muted">{label}</dt>
+    <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-line/70 py-4 last:border-b-0">
+      <dt className="col-span-2 text-[0.8125rem] text-muted">{label}</dt>
       <dd className="min-w-0">{children}</dd>
       {action ? <dd>{action}</dd> : null}
     </div>
@@ -43,7 +43,7 @@ function CopyButton({ label, onCopy }: { label: string; onCopy: () => Promise<vo
           );
         });
       }}
-      className="rounded-[var(--radius-control)] p-2 text-muted hover:bg-surface-2 hover:text-text"
+      className="glass-clear flex size-10 items-center justify-center rounded-full text-muted transition-colors hover:text-text"
     >
       <Copy size={17} aria-hidden="true" />
     </button>
@@ -69,17 +69,25 @@ export function EntryDetail({ entry }: { entry: LoginEntry }) {
 
   return (
     <article className="max-w-2xl">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-xl font-semibold tracking-tight break-words">
-          {entry.title || 'Untitled'}
-        </h2>
-        <div className="flex gap-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-4">
+          <span
+            aria-hidden="true"
+            className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-accent-fill text-[1.75rem] font-semibold text-on-accent"
+          >
+            {(entry.title.trim()[0] ?? '?').toUpperCase()}
+          </span>
+          <h2 className="min-w-0 text-[1.75rem] leading-tight font-semibold break-words">
+            {entry.title || 'Untitled'}
+          </h2>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => void toggleFavorite()}
             aria-pressed={entry.favorite}
             aria-label={entry.favorite ? 'Remove from favorites' : 'Add to favorites'}
-            className="rounded-[var(--radius-control)] p-2 text-muted hover:bg-surface-2 hover:text-text"
+            className="glass-clear flex size-10 items-center justify-center rounded-full text-muted transition-colors hover:text-text"
           >
             <Star
               size={18}
@@ -89,7 +97,7 @@ export function EntryDetail({ entry }: { entry: LoginEntry }) {
           </button>
           <Link
             to={`/app/vault/${entry.id}/edit`}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] px-3 py-2 text-sm hover:bg-surface-2"
+            className="glass-clear inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[0.9375rem] font-medium transition-colors hover:bg-[var(--sv-glass-strong)]"
           >
             <Pencil size={16} aria-hidden="true" /> Edit
           </Link>
@@ -98,7 +106,7 @@ export function EntryDetail({ entry }: { entry: LoginEntry }) {
             onClick={() => {
               setConfirming(true);
             }}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] px-3 py-2 text-sm text-danger hover:bg-danger-soft"
+            className="inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[0.9375rem] font-medium text-danger transition-colors hover:bg-danger-soft"
           >
             <Trash2 size={16} aria-hidden="true" /> Delete
           </button>
@@ -110,7 +118,7 @@ export function EntryDetail({ entry }: { entry: LoginEntry }) {
         </Notice>
       ) : null}
 
-      <dl className="mt-4">
+      <dl className="well mt-7 px-5">
         {entry.username ? (
           <Row
             label="Username"
@@ -156,7 +164,7 @@ export function EntryDetail({ entry }: { entry: LoginEntry }) {
                 onClick={() => {
                   setRevealed((r) => !r);
                 }}
-                className="rounded-[var(--radius-control)] p-2 text-muted hover:bg-surface-2 hover:text-text"
+                className="glass-clear flex size-10 items-center justify-center rounded-full text-muted transition-colors hover:text-text"
               >
                 {revealed ? (
                   <EyeOff size={17} aria-hidden="true" />
@@ -212,10 +220,7 @@ export function EntryDetail({ entry }: { entry: LoginEntry }) {
           <Row label="Tags">
             <ul className="flex flex-wrap gap-1.5">
               {entry.tags.map((tag) => (
-                <li
-                  key={tag}
-                  className="rounded-[var(--radius-control)] bg-surface-2 px-2 py-0.5 text-sm"
-                >
+                <li key={tag} className="rounded-full bg-surface/80 px-3 py-0.5 text-sm">
                   {tag}
                 </li>
               ))}

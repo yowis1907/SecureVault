@@ -124,13 +124,17 @@ function Editor({ existing }: { existing: LoginEntry | undefined }) {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="text-[2.5rem] leading-tight font-semibold">
         {existing ? 'Edit login' : 'Add login'}
       </h1>
       <p className="mt-1 text-sm text-muted">
         Everything on this form is encrypted together before it is saved.
       </p>
-      <form noValidate onSubmit={form.handleSubmit(submit)} className="mt-6 flex flex-col gap-5">
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(submit)}
+        className="glass mt-6 flex flex-col gap-5 p-7 sm:p-9"
+      >
         <TextField
           label="Name"
           placeholder="For example, Bank"
@@ -194,7 +198,7 @@ function Editor({ existing }: { existing: LoginEntry | undefined }) {
             </label>
             <select
               id="category"
-              className="h-10 rounded-[var(--radius-control)] border border-line bg-surface px-3"
+              className="h-12 rounded-[var(--radius-control)] border border-line/80 bg-surface/70 px-4"
               {...form.register('categoryId')}
             >
               <option value="">None</option>
@@ -234,7 +238,7 @@ function Editor({ existing }: { existing: LoginEntry | undefined }) {
           </Button>
           <Link
             to={existing ? `/app/vault/${existing.id}` : '/app/vault'}
-            className="inline-flex h-10 items-center rounded-[var(--radius-control)] border border-line px-4 hover:bg-surface-2"
+            className="glass-clear inline-flex h-11 items-center rounded-full px-5 font-medium hover:bg-[var(--sv-glass-strong)]"
           >
             Cancel
           </Link>

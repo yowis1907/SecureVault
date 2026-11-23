@@ -80,13 +80,10 @@ const shot = async (name) => {
 };
 const exact = { exact: true };
 
-// The landing page is shown in the dark theme, where the 3D scene glows. The wait lets the
-// headline finish resolving out of random glyphs and the scene fade in.
-await page.emulateMedia({ colorScheme: 'dark' });
+// The wait lets the entrance animations settle.
 await page.goto(BASE);
-await page.waitForTimeout(2000);
+await page.waitForTimeout(1200);
 await shot('landing');
-await page.emulateMedia({ colorScheme: 'light' });
 
 await page.goto(`${BASE}/register`);
 await page.getByLabel('Email', exact).fill(account.email);

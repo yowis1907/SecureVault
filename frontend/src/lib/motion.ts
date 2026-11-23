@@ -24,40 +24,6 @@ export function useReducedMotion(): boolean {
   return reduced;
 }
 
-/**
- * Tilts an element toward the pointer in 3D (CSS class `tilt`). Values are written as CSS
- * variables through CSSOM, which the CSP allows. Touch and reduced motion leave it flat.
- */
-export function useTilt<T extends HTMLElement>(maxDegrees = 7) {
-  const ref = useRef<T>(null);
-  const reduced = useReducedMotion();
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || reduced) return;
-    const move = (e: PointerEvent) => {
-      if (e.pointerType === 'touch') return;
-      const r = el.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      el.style.setProperty('--rx', `${(-y * maxDegrees).toFixed(2)}deg`);
-      el.style.setProperty('--ry', `${(x * maxDegrees).toFixed(2)}deg`);
-      el.dataset.active = 'true';
-    };
-    const leave = () => {
-      el.style.setProperty('--rx', '0deg');
-      el.style.setProperty('--ry', '0deg');
-      el.dataset.active = 'false';
-    };
-    el.addEventListener('pointermove', move);
-    el.addEventListener('pointerleave', leave);
-    return () => {
-      el.removeEventListener('pointermove', move);
-      el.removeEventListener('pointerleave', leave);
-    };
-  }, [maxDegrees, reduced]);
-  return ref;
-}
-
 /** Marks an element visible the first time it scrolls into view (CSS class `reveal`). */
 export function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -141,4 +107,23 @@ export function useCountUp(target: number, durationMs = 900): number {
     };
   }, [target, durationMs, reduced]);
   return reduced ? target : value;
+}
+
+/**
+ * Live result of a media query. Where matchMedia is missing (test DOMs), returns the fallback.
+ */
+export function useMediaQuery(query: string, fallback = true): boolean {
+  const [matches, setMatches] = useState(() => mediaQuery(query)?.matches ?? fallback);
+  useEffect(() => {
+    const mq = mediaQuery(query);
+    if (!mq) return;
+    const onChange = (e: MediaQueryListEvent) => {
+      setMatches(e.matches);
+    };
+    mq.addEventListener('change', onChange);
+    return () => {
+      mq.removeEventListener('change', onChange);
+    };
+  }, [query]);
+  return matches;
 }
