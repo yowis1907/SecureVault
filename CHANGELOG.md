@@ -18,6 +18,8 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Security
 
+- The CodeQL action was pinned to a commit that is not part of any `github/codeql-action` release, under a comment naming v4.39.3. It now uses the real v4.39.3 commit, and a new CI job checks that every pinned action SHA matches the release its comment names.
+- CI jobs ask only for the permissions they use: CodeQL reads its own run, and secret scanning reads a pull request's commits.
 - Control characters in an email no longer reach the database; they are rejected as invalid input.
 - nginx drops client-supplied `X-Forwarded-Host` and `X-Forwarded-Port`.
 - Master password strength is computed when a form is submitted, not taken from the on-screen meter.
@@ -28,5 +30,4 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Known gaps
 
-- The CI workflows have not run.
 - See "Accepted and open" in `docs/SECURITY_AUDIT.md`.

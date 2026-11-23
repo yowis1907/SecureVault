@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 # Third-party actions are pinned to a full commit SHA so a moved tag cannot change what runs.
+# The action-pins job checks that each SHA is the release its comment names.
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -121,3 +122,12 @@ jobs:
       - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  action-pins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Every action is pinned to the commit its version comment names
+        run: bash .github/scripts/verify-action-pins.sh
+        env:
+          GH_TOKEN: ${{ github.token }}

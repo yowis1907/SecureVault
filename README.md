@@ -112,7 +112,7 @@ Last run locally on 2026-11-22:
 
 The end-to-end journey puts a unique marker in the master password and every entry field, then fails if any marker appears in network traffic, a database row, or a log.
 
-The GitHub Actions workflows in this repository have not run yet.
+GitHub Actions runs all of these on every push and pull request, together with a full-stack smoke test, secret scanning, CodeQL, and a check that every action is pinned to the commit of a real release.
 
 ## Project layout
 
