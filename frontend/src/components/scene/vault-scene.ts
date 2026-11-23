@@ -66,6 +66,17 @@ function shadowTexture(): CanvasTexture {
   return new CanvasTexture(canvas);
 }
 
+/**
+ * True when WebGL runs on the CPU (SwiftShader, llvmpipe, and similar), as in many virtual
+ * machines and headless browsers. A lit metal scene there costs more than it is worth.
+ */
+function isSoftwareRenderer(renderer: WebGLRenderer): boolean {
+  const gl = renderer.getContext();
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+  return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
+}
+
 const DOOR_RADIUS = 0.98;
 const OPEN_ANGLE = -1.85;
 
@@ -94,6 +105,7 @@ export class VaultScene {
   private turn = { x: 0, y: 0 };
   private scroll = 0;
   private scrollEased = 0;
+  private slowFrames = 0;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -105,6 +117,10 @@ export class VaultScene {
       alpha: true,
       powerPreference: 'low-power',
     });
+    if (isSoftwareRenderer(this.renderer)) {
+      this.renderer.dispose();
+      throw new Error('Software WebGL: the scene would slow the page down.');
+    }
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setClearColor(0x000000, 0);
     this.renderer.toneMapping = ACESFilmicToneMapping;
@@ -337,8 +353,18 @@ export class VaultScene {
 
   private readonly tick = (now: number) => {
     if (!this.running) return;
-    const dt = Math.min(0.05, (now - this.last) / 1000);
+    const raw = (now - this.last) / 1000;
+    const dt = Math.min(0.05, raw);
     this.last = now;
+    // If frames keep taking far too long, the device cannot afford the scene: settle on one
+    // still frame rather than slow down the page the user is trying to use.
+    this.slowFrames = raw > 0.06 ? this.slowFrames + 1 : Math.max(0, this.slowFrames - 2);
+    if (this.slowFrames > 45) {
+      this.options = { ...this.options, reducedMotion: true };
+      this.stop();
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
     this.step(dt);
     this.renderer.render(this.scene, this.camera);
     this.frame = requestAnimationFrame(this.tick);

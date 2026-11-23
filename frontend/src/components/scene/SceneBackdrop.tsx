@@ -27,6 +27,8 @@ export function SceneBackdrop({
     let scene: VaultScene | undefined;
     let cancelled = false;
     const cleanups: (() => void)[] = [];
+    // A container hidden at this screen size (for example lg:block on a phone) gets no scene.
+    if (!canvas.parentElement || canvas.parentElement.offsetWidth === 0) return;
     const motion = mediaQuery(reducedMotionQuery);
     // Test DOMs and very old browsers lack these; the page simply has no scene there.
     if (
