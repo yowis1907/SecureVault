@@ -1,6 +1,20 @@
-# Publishes PostgreSQL on localhost so the backend can run outside Docker:
-#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up db
+# Development only. Publishes PostgreSQL on localhost so the backend can run outside Docker,
+# and adds Adminer, a small web UI for browsing the tables:
+#   docker compose --env-file .env.example -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Adminer: http://localhost:8081 (system PostgreSQL, server db, user and database securevault,
+# password from the env file). Both ports are bound to 127.0.0.1 only.
 services:
   db:
     ports:
       - '127.0.0.1:5432:5432'
+
+  adminer:
+    # Pinned by digest so a moved tag cannot change what runs.
+    image: adminer:6.3.0@sha256:037125c2bc4836b4917d4fd08a16f817eac2848778c4e9aab87a8340aef08dfd
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - '127.0.0.1:8081:8080'
+    depends_on:
+      db:
+        condition: service_healthy
