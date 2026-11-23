@@ -367,7 +367,7 @@ Node 26 compatibility, the hash-wasm 4.13 review, cookie naming, Trusted Types (
 
 | Item | Planned for phase |
 |---|---|
-| Benchmark KDF on a mid-range phone; revise before any data format ships. Measured so far, 2026-11-10, with `npm run benchmark` under the production CSP: laptop with Intel i5-12450H, Chromium 152, median 223 ms over 5 runs. **No phone measured yet** | 2 |
+| Benchmark KDF on a mid-range phone; revise before any data format ships. Measured so far, 2026-11-10, with `npm run benchmark` under the production CSP: laptop with Intel i5-12450H, Chromium 152, median 223 ms over 5 runs; 237 ms on 2026-11-23 with Edge under the Trusted Types CSP. Chromium CPU throttling does not slow the worker (1x, 4x, 6x all about 215 ms), so it cannot stand in for a phone. **No phone measured yet** | 2 |
 | Read the full ePrint 2026/058 paper and update section 5.11. The PDF could not be downloaded on two attempts, most recently 2026-11-11 | 2 |
 
 ## References

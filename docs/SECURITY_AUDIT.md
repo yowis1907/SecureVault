@@ -53,7 +53,7 @@ Test gaps closed in this phase: clipboard clearing (delay, restart, clear on loc
 | D | No `Strict-Transport-Security` header in the nginx config | The stack serves plain HTTP for local use. A real deployment needs TLS termination that adds it. No production deployment exists |
 | E | Docker base images are pinned by tag, not digest | Dependabot tracks them; digest pinning was not done |
 | F | ~~Trusted Types are not enforced~~ | Closed 2026-11-23: enforced by the CSP with one policy for the worker URL. Verified in Edge locally and in Chromium and Firefox in CI |
-| G | The Argon2id cost was measured on one laptop only (223 ms) | No phone was available |
+| G | The Argon2id cost was measured on one laptop only (223 ms) | No phone was available. Chromium CPU throttling was tried on 2026-11-23 and does not reach the worker, so it gives no estimate |
 | H | The research paper behind ARCHITECTURE section 5.11 was not read in full | The PDF could not be downloaded on two attempts. The section relies on the abstract and the authors' summary |
 | I | Encrypted backup was added on 2026-11-22, after this audit | Tested (see scenario 35), but not part of the Phase 6 review |
 | J | The account, settings, and security screens have no component tests of their own | Their logic is unit-tested and they were exercised in a browser |

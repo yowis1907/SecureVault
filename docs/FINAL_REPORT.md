@@ -29,9 +29,11 @@ All on the final code, on a Windows 11 development machine. Last run 2026-11-22,
 |---|---|---|
 | Backend unit | `./mvnw verify` | 13 pass |
 | Backend integration, PostgreSQL 18 through Testcontainers | `./mvnw verify` | 91 pass |
-| Frontend unit and component | `npm test` | 187 pass |
+| Frontend unit and component | `npm test` | 191 pass (2026-11-23) |
 | Frontend lint, strict types, format, build | `npm run lint`, `typecheck`, `format:check`, `build` | Pass |
 | End-to-end in Edge against the Docker stack | `npx playwright test` | 4 pass |
+| End-to-end in Chromium and Firefox, GitHub Actions (2026-11-23) | `PW_BROWSER=firefox npx playwright test` | 4 pass in each |
+| Backend dependencies against OSV, GitHub Actions (2026-11-23) | CycloneDX list, then OSV-Scanner | 113 packages, 0 known vulnerabilities |
 | Clean clone: no-cache image build, healthy stack, smoke checks, end-to-end | See below | Pass |
 | `npm audit`, production dependencies | `npm audit --omit=dev` | 0 advisories |
 
@@ -41,13 +43,11 @@ Cross-implementation check for Argon2id: Bouncy Castle, `hash-wasm`, and `@noble
 
 ## Not run or not verified
 
-- **No Maven dependency vulnerability scan.**
-- **Argon2id cost on a phone.** Measured on one laptop only: 223 ms median.
+- **Argon2id cost on a phone.** Measured on one laptop only: 223 ms median, 237 ms again on 2026-11-23 under the Trusted Types CSP. Chromium's CPU throttling was tried as a stand-in and does not reach the worker (1x, 4x, and 6x all gave about 215 ms), so it gives no estimate. The benchmark page needs no secure context, so it can be opened on a phone over the local network with `npx vite preview --mode benchmark --host`.
 - **Timing differences over a network.** Measured in-process: 2 to 4 ms between known and unknown emails.
 - **The `prod` profile was never started.** Its startup safety check is unit-tested.
-- **Trusted Types** were not tried in a browser.
 - **The research paper** behind specification section 5.11 was not read in full; the PDF could not be downloaded.
-- **Browsers other than Chromium-based ones.** Firefox and Safari were not tested.
+- **Safari.** Chromium-based browsers and Firefox run the end-to-end suite; Safari was not tested.
 - **Screen readers.** Accessibility was built in (labels, focus, live regions, keyboard paths) but not tested with assistive technology.
 - **Coverage after the last tests were added** was not re-measured. Before them it was 80% of lines in the crypto, session, and library code.
 

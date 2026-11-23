@@ -36,6 +36,10 @@ PW_CHANNEL=msedge npx playwright test
 
 `PW_CHANNEL=msedge` uses the Edge browser that comes with Windows. On other systems, run `npx playwright install chromium` once and leave `PW_CHANNEL` unset.
 
+`PW_BROWSER=firefox` runs the same tests in Firefox, after `npx playwright install firefox`. CI runs both browsers, each against its own stack. On the Windows development machine Playwright's Firefox build would not start ("side-by-side configuration is incorrect"), so Firefox is checked in CI only.
+
+The journey also fails on any Content Security Policy violation, Trusted Types included, and checks that the browser refuses a string assigned to `innerHTML`.
+
 Registration is limited to 5 per hour per IP, and each run registers 5 accounts, the whole allowance. To run again within the hour, restart the API, which resets its in-memory limits:
 
 ```bash

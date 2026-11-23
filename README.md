@@ -102,17 +102,17 @@ npm ci && npx playwright test
 
 ### Test status
 
-Last run locally on 2026-11-22:
+Last run locally on 2026-11-23 (backend on 2026-11-22; its code has not changed since):
 
 | Suite | Result |
 |---|---|
 | Backend unit and integration | 104 tests pass |
-| Frontend unit and component | 187 tests pass |
-| End-to-end in a real browser | 4 tests pass |
+| Frontend unit and component | 191 tests pass |
+| End-to-end in a real browser | 4 tests pass in Edge locally, and in Chromium and Firefox in CI |
 
 The end-to-end journey puts a unique marker in the master password and every entry field, then fails if any marker appears in network traffic, a database row, or a log.
 
-GitHub Actions runs all of these on every push and pull request, together with a full-stack smoke test, secret scanning, CodeQL, and a check that every action is pinned to the commit of a real release.
+GitHub Actions runs all of these on every push and pull request, together with a full-stack smoke test, secret scanning, CodeQL, a scan of every resolved backend dependency against the OSV vulnerability database, and a check that every action is pinned to the commit of a real release.
 
 ## Project layout
 
