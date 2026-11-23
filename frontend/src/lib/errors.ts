@@ -35,6 +35,12 @@ export function messageFor(error: unknown): string {
         return 'Confirm your email address first. Check your inbox for the link.';
       case 'STEP_UP_FAILED':
         return 'Your account password is incorrect.';
+      case 'INVALID_MFA_CODE':
+        return 'That code is not valid. Check the time on your phone, or use a recovery code.';
+      case 'MFA_CHALLENGE_EXPIRED':
+        return 'The sign-in took too long. Enter your email and password again.';
+      case 'MFA_STATE_CONFLICT':
+        return 'Two-factor sign-in has changed in another tab. Reload the page.';
       case 'INVALID_TOKEN':
         return 'This link is invalid or has expired. Request a new one.';
       case 'RATE_LIMITED':

@@ -6,6 +6,7 @@ import com.securevault.activity.ActivityService;
 import com.securevault.activity.ActivityType;
 import com.securevault.common.error.ApiException;
 import com.securevault.common.error.ErrorCode;
+import com.securevault.mfa.MfaService;
 import java.security.SecureRandom;
 import java.util.HexFormat;
 import java.util.Optional;
@@ -17,10 +18,14 @@ import org.springframework.stereotype.Service;
 @Service
 class AuthService {
 
+  /** A correct password. If {@code mfaRequired}, a code must follow before a session starts. */
+  record PasswordCheck(UUID userId, boolean mfaRequired) {}
+
   private final UserService users;
   private final PasswordEncoder passwordEncoder;
   private final AuthRateLimits rateLimits;
   private final ActivityService activity;
+  private final MfaService mfa;
 
   /**
    * Hash of a random value nobody knows. An unknown email is checked against it, so the response
@@ -32,8 +37,10 @@ class AuthService {
       UserService users,
       PasswordEncoder passwordEncoder,
       AuthRateLimits rateLimits,
-      ActivityService activity) {
+      ActivityService activity,
+      MfaService mfa) {
     this.users = users;
+    this.mfa = mfa;
     this.passwordEncoder = passwordEncoder;
     this.rateLimits = rateLimits;
     this.activity = activity;
@@ -42,8 +49,8 @@ class AuthService {
     this.dummyHash = passwordEncoder.encode(HexFormat.of().formatHex(random));
   }
 
-  /** Returns the user's ID, or throws with the documented error code. */
-  UUID login(String email, String accountPassword, String clientIp) {
+  /** Checks the password, or throws with the documented error code. */
+  PasswordCheck login(String email, String accountPassword, String clientIp) {
     String normalizedEmail = UserService.normalizeEmail(email);
     rateLimits.login(clientIp, normalizedEmail);
 
@@ -58,7 +65,20 @@ class AuthService {
     if (!account.get().emailVerified()) {
       throw new ApiException(ErrorCode.EMAIL_NOT_VERIFIED);
     }
-    activity.record(account.get().id(), ActivityType.LOGIN_SUCCEEDED);
-    return account.get().id();
+    UUID userId = account.get().id();
+    // Revealed only after a correct password too, so it says nothing to someone guessing.
+    if (mfa.isEnabled(userId)) {
+      return new PasswordCheck(userId, true);
+    }
+    activity.record(userId, ActivityType.LOGIN_SUCCEEDED);
+    return new PasswordCheck(userId, false);
+  }
+
+  /** The second step of sign-in. Throws INVALID_MFA_CODE unless the code is accepted. */
+  void completeMfa(UUID userId, String code) {
+    if (mfa.verify(userId, code).isEmpty()) {
+      throw new ApiException(ErrorCode.INVALID_MFA_CODE);
+    }
+    activity.record(userId, ActivityType.LOGIN_SUCCEEDED);
   }
 }

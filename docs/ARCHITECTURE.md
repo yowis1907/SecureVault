@@ -283,6 +283,7 @@ Scarlata, Torrisi, Backendal, and Paterson (USENIX Security 2026, IACR ePrint 20
 | Rotation | New session ID at login; all sessions ended on account password reset; other sessions ended on password change |
 | CSRF | Session-stored synchronizer token with Spring's default XOR masking, delivered by `GET /auth/csrf` and held in memory by the client |
 | Defense in depth | Filter rejecting state-changing requests with `Sec-Fetch-Site: cross-site` or a mismatched `Origin` |
+| Two-factor sign-in | Optional TOTP (RFC 6238, HMAC-SHA1, 6 digits, 30 s, one step of drift). After a correct password, only the pending user ID and time sit in the anonymous session under a new ID; the session is authenticated after `POST /auth/login/mfa` accepts a code. Codes are single-use (last accepted step stored), compared in constant time, and limited per IP and per account. The secret is AES-256-GCM encrypted under `SECUREVAULT_MFA_KEY` from the environment, bound to the user ID; recovery codes are SHA-256 hashed. ADR 0015 |
 | CORS | No cross-origin access. Vite's dev proxy keeps development same-origin too |
 | Step-up | Account password required again for master password change, vault reset, and account deletion |
 

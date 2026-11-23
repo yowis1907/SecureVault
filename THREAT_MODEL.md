@@ -97,7 +97,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 
 | # | Scenario | Actor | Mitigation | Residual risk |
 |---|---|---|---|---|
-| 12 | Credential stuffing | T1 | Per-IP, per-account throttles; the vault still needs the master password | Distributed attacks slow but do not stop; instance-local limits. The per-email throttle also lets an attacker temporarily block sign-in for a known address |
+| 12 | Credential stuffing | T1 | Per-IP, per-account throttles; optional TOTP two-factor sign-in (ADR 0015), so a correct password alone is not a session; the vault still needs the master password | Distributed attacks slow but do not stop; instance-local limits. The per-email throttle also lets an attacker temporarily block sign-in for a known address |
 | 13 | Account enumeration | T1 | Uniform registration, login, and reset responses, checked by integration tests. Login hashes against a dummy value for unknown emails; registration hashes before checking the address; email goes out in the background, and the per-address email limit fails silently | Timing differences of 2 to 4 ms were measured in-process in Phase 6. Not measured over a network |
 | 14 | CSRF | T1 | SameSite=Strict, session-bound token, Origin and Fetch Metadata checks | Low |
 | 15 | Session theft through script | T7 | HttpOnly cookies | XSS can still make same-origin requests while active |
@@ -145,6 +145,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 | 37 | Secrets committed to Git | T9 | `.env` ignored; secret scanning in CI | Human error |
 | 38 | Insecure production settings | T1, T6 | `prod` profile fails startup on unsafe configuration | Misconfiguration outside the application |
 | 39 | Filling the session table with anonymous requests | T1 | Only `GET /auth/csrf` creates an anonymous session, and it expires after 10 minutes idle. Denied anonymous GETs and POSTs create none. Tested in `ApplicationIT` and `AuthIT`, and checked against the Docker stack | The CSRF endpoint is limited to 30 per minute per IP, but many IPs can still create short-lived rows; limits are per instance |
+| 40 | Stolen or phished account password | T1 | Optional TOTP two-factor sign-in: no session until a code is accepted; codes are single-use, rate-limited, and checked in constant time; the TOTP secret is encrypted at rest under a key outside the database; recovery codes are hashed. Tested in `MfaIT` and `e2e/tests/two-factor.spec.ts` | Off by default. A real-time phishing proxy can relay a code; WebAuthn would resist that. Losing the phone and the recovery codes locks the account |
 
 ## 6. Security assumptions
 
@@ -172,7 +173,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 - Web-delivered code trust (scenario 5).
 - No detection of rollback or deletion (scenario 10).
 - Master password change does not rotate the DEK. If an old wrapped DEK and old master password are both compromised, the vault remains readable until full rotation is built.
-- No two-factor authentication on the account in version 1.
+- Two-factor sign-in is TOTP only and off by default. It does not resist a real-time phishing proxy; WebAuthn passkeys would.
 - No post-quantum design. AES-256 and Argon2id are symmetric, but there is no formal analysis here.
 - Rate limits are per instance.
 

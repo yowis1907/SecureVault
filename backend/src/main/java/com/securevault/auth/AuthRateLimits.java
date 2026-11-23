@@ -25,6 +25,7 @@ class AuthRateLimits {
   private final RateLimiter emailPerAddress = limiter("email-address", 3, Duration.ofHours(1));
   private final RateLimiter tokenPerIp = limiter("token-ip", 10, Duration.ofHours(1));
   private final RateLimiter csrfPerIp = limiter("csrf-ip", 30, Duration.ofMinutes(1));
+  private final RateLimiter mfaPerIp = limiter("mfa-ip", 10, Duration.ofMinutes(1));
 
   private static RateLimiter limiter(String name, long capacity, Duration period) {
     return new RateLimiter(new RateLimitRule(name, capacity, period));
@@ -34,6 +35,11 @@ class AuthRateLimits {
     loginPerIpAndEmail.consume(clientIp + "|" + normalizedEmail);
     loginPerIp.consume(clientIp);
     loginPerEmail.consume(normalizedEmail);
+  }
+
+  /** Second-step codes. The account itself has its own limit in MfaService. */
+  void mfa(String clientIp) {
+    mfaPerIp.consume(clientIp);
   }
 
   void register(String clientIp) {

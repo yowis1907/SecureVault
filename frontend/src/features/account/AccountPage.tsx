@@ -16,6 +16,7 @@ import { account, vault as vaultApi } from '../../lib/api/endpoints';
 import { useCurrentUser } from '../../lib/api/queries';
 import { messageFor } from '../../lib/errors';
 import { getArgon2, lock } from '../../vault-session/session';
+import { TwoFactorSection } from './TwoFactorSection';
 
 function Section({
   title,
@@ -272,6 +273,12 @@ export function AccountPage() {
         description="Signs you in. It can be reset by email; your master password cannot."
       >
         <AccountPassword />
+      </Section>
+      <Section
+        title="Two-factor sign-in"
+        description="A code from your phone at every sign-in, on top of the account password."
+      >
+        <TwoFactorSection />
       </Section>
       <Section title="Sessions" description="Browsers currently signed in to your account.">
         <Sessions />

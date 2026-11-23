@@ -56,9 +56,10 @@ Test gaps closed in this phase: clipboard clearing (delay, restart, clear on loc
 | G | The Argon2id cost was measured on one laptop only (223 ms) | No phone was available. Chromium CPU throttling was tried on 2026-11-23 and does not reach the worker, so it gives no estimate |
 | H | The research paper behind ARCHITECTURE section 5.11 was not read in full | The PDF could not be downloaded on two attempts. The section relies on the abstract and the authors' summary |
 | I | Encrypted backup was added on 2026-11-22, after this audit | Tested (see scenario 35), but not part of the Phase 6 review |
-| J | The account, settings, and security screens have no component tests of their own | Their logic is unit-tested and they were exercised in a browser |
+| J | The settings and security screens have no component tests of their own | Their logic is unit-tested and they were exercised in a browser. The account page's two-factor section has its own tests |
 | K | The `prod` profile was never started | Its startup check is unit-tested only |
 | L | Rollback or deletion of records by a malicious server is not detected | Known design limit, scenario 10 |
+| M | Two-factor sign-in (TOTP) was added on 2026-11-23, after this audit | Tested in `MfaIT` (11 cases: replay, expiry, wrong-code limit, recovery codes, encrypted storage), `MfaSecretCipherTest` (RFC 6238 vector, production key checks), component tests, and `e2e/tests/two-factor.spec.ts`, but not part of the Phase 6 review. Scenario 40 |
 
 ## Found after the audit
 

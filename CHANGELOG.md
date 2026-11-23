@@ -6,6 +6,7 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
+- **Two-factor sign-in (TOTP).** Turn it on from the Account page with the account password, a QR code, and a first code; save ten one-time recovery codes. Sign-in then needs a code after the password, and no session exists until it is accepted. Codes cannot be reused and are rate-limited; the secret is encrypted at rest under `SECUREVAULT_MFA_KEY`, which the `prod` profile requires. ADR 0015.
 - **New interface: light and liquid glass.** Designed in Figma first, in the manner of Apple's interfaces: light neutrals and one blue accent over a soft pastel wallpaper, with frosted, translucent panels (backdrop blur, a bright edge, an inner highlight, and a corner sheen). A floating glass navigation capsule on the landing page, a single glass card for sign-in and unlock, a floating glass sidebar in the app and a floating glass tab bar on phones, iOS-style switches in the generator, and a dark theme with the same materials. The system face is used first, so Apple devices show SF Pro.
 - **Firefox end-to-end runs.** CI runs the end-to-end suite in Chromium and Firefox, each against its own stack.
 - **Backend dependency scan.** CI lists every runtime Maven dependency with CycloneDX and checks it against the OSV database.

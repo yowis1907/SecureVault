@@ -33,6 +33,8 @@ Errors follow RFC 9457 with `Content-Type: application/problem+json`.
 | 400 | `INVALID_TOKEN` | Expired, used, or unknown email token |
 | 401 | `UNAUTHENTICATED` | No valid session |
 | 401 | `INVALID_CREDENTIALS` | Wrong email or password, same response for both |
+| 401 | `INVALID_MFA_CODE` | Wrong, reused, or spent two-factor code |
+| 401 | `MFA_CHALLENGE_EXPIRED` | No pending two-factor sign-in, more than 5 minutes passed, or 5 wrong codes |
 | 403 | `CSRF_REJECTED` | CSRF, Origin, or Fetch Metadata check failed |
 | 403 | `EMAIL_NOT_VERIFIED` | Returned only after a correct password |
 | 403 | `STEP_UP_FAILED` | Wrong `accountPassword` on a sensitive action |
@@ -41,6 +43,7 @@ Errors follow RFC 9457 with `Content-Type: application/problem+json`.
 | 405 | `METHOD_NOT_ALLOWED` | Known path, unsupported HTTP method |
 | 409 | `VERSION_CONFLICT` | Stale `version` or `expectedKeyVersion` |
 | 409 | `RECORD_ID_CONFLICT` | Client-generated ID already exists |
+| 409 | `MFA_STATE_CONFLICT` | Two-factor setup or removal asked for in the wrong state |
 | 413 | `PAYLOAD_TOO_LARGE` | Body or record too large |
 | 415 | `UNSUPPORTED_MEDIA_TYPE` | Body is not `application/json` |
 | 422 | `QUOTA_EXCEEDED` | More than 5,000 records |
@@ -111,9 +114,12 @@ Public. `{ "email": "..." }`. Always `202`.
 ### `POST /auth/login`
 Public. `{ "email": "...", "accountPassword": "..." }`.
 
-`200` returns User and sets a new session cookie. Errors: `401 INVALID_CREDENTIALS`, `403 EMAIL_NOT_VERIFIED`, `429`.
+`200` returns User and sets a new session cookie. If the account has two-factor sign-in on, `200` instead returns `{ "mfaRequired": true }`, no authenticated session is created, and the code goes to `POST /auth/login/mfa` (ADR 0015). Errors: `401 INVALID_CREDENTIALS`, `403 EMAIL_NOT_VERIFIED`, `429`.
 
 The session ID changes at login, and the CSRF token from before login stops working, so the client fetches a new one. `429` is also returned when the server is already running its maximum number of password hashes.
+
+### `POST /auth/login/mfa`
+Public, but needs the pending state that a correct password left in the session. `{ "code": "123456" }`, where the code is from the authenticator app or is a recovery code (case and dashes ignored). `200` returns User and sets a new session cookie, as for a password-only login. Errors: `401 INVALID_MFA_CODE`, `401 MFA_CHALLENGE_EXPIRED` (after 5 minutes or 5 wrong codes the password must be entered again), `429` (10 a minute per IP, 10 per 15 minutes per account).
 
 ### `POST /auth/logout`
 Authenticated. `204`. Destroys the session.
@@ -145,6 +151,21 @@ All require authentication.
 
 ### `DELETE /account/sessions`
 `204`. Ends all sessions except the current one.
+
+### `GET /account/mfa`
+`{ "enabled": true, "recoveryCodesRemaining": 9 }`.
+
+### `POST /account/mfa/setup`
+`{ "accountPassword": "..." }`. Starts setup with a new secret and returns `{ "secret": "BASE32", "otpauthUri": "otpauth://totp/..." }`. Nothing changes at sign-in until `/enable`. Errors: `403 STEP_UP_FAILED`, `409 MFA_STATE_CONFLICT` when already on.
+
+### `POST /account/mfa/enable`
+`{ "code": "123456" }`. Turns two-factor sign-in on and returns `{ "recoveryCodes": ["ABCD-EFGH-JKMN", ...] }`, 10 codes shown only this once. Errors: `401 INVALID_MFA_CODE`, `409 MFA_STATE_CONFLICT` without a started setup.
+
+### `POST /account/mfa/disable`
+`{ "accountPassword": "...", "code": "..." }`, an app code or a recovery code. `204`, and the secret and recovery codes are deleted. Errors: `403 STEP_UP_FAILED`, `401 INVALID_MFA_CODE`, `409 MFA_STATE_CONFLICT`.
+
+### `POST /account/mfa/recovery-codes`
+`{ "accountPassword": "..." }`. Replaces the recovery codes and returns the new ones. Errors: `403 STEP_UP_FAILED`, `409 MFA_STATE_CONFLICT`.
 
 ### `POST /account/deletion`
 `{ "accountPassword": "...", "confirmation": "DELETE MY ACCOUNT" }`. Returns `204`, removes all user data, and ends sessions. Errors: `403 STEP_UP_FAILED`.
@@ -228,7 +249,7 @@ Returns `204`. Errors: `403 STEP_UP_FAILED`.
 { "events": [{ "id": 42, "type": "RECORD_UPDATED", "recordId": "uuid-or-null", "occurredAt": "..." }] }
 ```
 
-Types: `LOGIN_SUCCEEDED`, `ACCOUNT_PASSWORD_CHANGED`, `ACCOUNT_PASSWORD_RESET`, `MASTER_PASSWORD_CHANGED`, `VAULT_RESET`, `SESSION_REVOKED`, `RECORD_CREATED`, `RECORD_UPDATED`, `RECORD_DELETED`, `RECORDS_IMPORTED`.
+Types: `LOGIN_SUCCEEDED`, `ACCOUNT_PASSWORD_CHANGED`, `ACCOUNT_PASSWORD_RESET`, `MASTER_PASSWORD_CHANGED`, `VAULT_RESET`, `SESSION_REVOKED`, `MFA_ENABLED`, `MFA_DISABLED`, `MFA_RECOVERY_CODE_USED`, `RECORD_CREATED`, `RECORD_UPDATED`, `RECORD_DELETED`, `RECORDS_IMPORTED`. With two-factor sign-in on, `LOGIN_SUCCEEDED` is recorded only after the code.
 
 The client looks up each `recordId` in the decrypted vault to display its title. Vault unlocks never appear here, because unlocking happens entirely in the browser and the server cannot observe it.
 

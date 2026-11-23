@@ -13,6 +13,7 @@ import com.securevault.account.UserService;
 import com.securevault.activity.ActivityService;
 import com.securevault.common.error.ApiException;
 import com.securevault.common.error.ErrorCode;
+import com.securevault.mfa.MfaService;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,13 @@ class AuthServiceTest {
   @BeforeEach
   void setUp() {
     when(encoder.encode(anyString())).thenReturn("dummy-hash");
-    service = new AuthService(users, encoder, new AuthRateLimits(), mock(ActivityService.class));
+    service =
+        new AuthService(
+            users,
+            encoder,
+            new AuthRateLimits(),
+            mock(ActivityService.class),
+            mock(MfaService.class));
   }
 
   @Test
@@ -50,6 +57,7 @@ class AuthServiceTest {
             Optional.of(new AccountCredentials(id, "user@example.test", "real-hash", true)));
     when(encoder.matches(eq("pw"), eq("real-hash"))).thenReturn(true);
 
-    assertThat(service.login("  USER@Example.TEST ", "pw", "192.0.2.2")).isEqualTo(id);
+    assertThat(service.login("  USER@Example.TEST ", "pw", "192.0.2.2"))
+        .isEqualTo(new AuthService.PasswordCheck(id, false));
   }
 }

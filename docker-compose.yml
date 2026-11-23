@@ -27,6 +27,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_MAIL_HOST: mailpit
       SECUREVAULT_PUBLIC_URL: http://localhost:${WEB_PORT:-3000}
+      SECUREVAULT_MFA_KEY: ${SECUREVAULT_MFA_KEY:-}
     read_only: true
     tmpfs:
       - /tmp
