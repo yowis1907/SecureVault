@@ -72,6 +72,14 @@ docker compose up --build --wait
 
 Open <http://localhost:3000> and create a vault. Sign-up sends a confirmation email, which is caught locally by Mailpit instead of being delivered: read it at <http://localhost:8025>.
 
+To look inside the database, start the development overlay. It adds Adminer, a small web UI for the tables, at <http://localhost:8081> (server `db`, user and database `securevault`, the password from your `.env`), and publishes PostgreSQL on `localhost:5432`. Both are bound to 127.0.0.1:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+Vault contents appear there only as ciphertext.
+
 The stack serves plain HTTP for local use. A real deployment would need TLS in front of it and the `prod` profile, and has not been attempted.
 
 ## Develop and test
