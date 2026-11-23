@@ -47,7 +47,7 @@ export function GeneratorPage() {
         Generated on this device from the browser's cryptographic random source.
       </p>
 
-      <div ref={tilt} className="tilt glass mt-6 p-5 sm:p-6">
+      <div ref={tilt} className="tilt panel mt-6 p-6 sm:p-8">
         {/* Announced once per new password; the animated text below is visual only. */}
         <output aria-live="polite" aria-label="Generated password" className="sr-only">
           {password}

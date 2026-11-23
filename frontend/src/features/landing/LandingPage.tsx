@@ -6,12 +6,12 @@ import { SceneBackdrop } from '../../components/scene/SceneBackdrop';
 import { pulseScene } from '../../components/scene/signal';
 import { bytesToBase64 } from '../../crypto/encoding';
 import { encryptRecord } from '../../crypto/records';
-import { useDecodeText, useReveal, useTilt } from '../../lib/motion';
+import { useDecodeText, useReveal } from '../../lib/motion';
 
 /**
  * Encrypts what the visitor types with the real record format and a throwaway key that exists
- * only in this page's memory, then shows what a server would receive. Each keystroke also pulses
- * the 3D scene, so the cause and the effect sit side by side.
+ * only in this page's memory, then shows what a server would receive. Each keystroke also turns
+ * the vault's locking wheel, so the cause and the effect sit side by side.
  */
 function SealDemo() {
   const inputId = useId();
@@ -20,7 +20,6 @@ function SealDemo() {
   const [generation, setGeneration] = useState(0);
   const [key, setKey] = useState<CryptoKey | null>(null);
   const [ids] = useState(() => ({ vaultId: crypto.randomUUID(), recordId: crypto.randomUUID() }));
-  const tilt = useTilt<HTMLDivElement>(5);
 
   useEffect(() => {
     void crypto.subtle
@@ -44,16 +43,13 @@ function SealDemo() {
   }, [key, ids, text]);
 
   return (
-    <div ref={tilt} className="tilt glass">
-      <div className="tilt-pop border-b border-line/70 p-5">
+    <div className="panel overflow-hidden">
+      <div className="border-b border-line p-6 sm:p-8">
         <div className="flex items-center justify-between">
           <label htmlFor={inputId} className="eyebrow">
             On your device
           </label>
-          <span className="flex items-center gap-1.5 text-xs text-muted">
-            <span className="size-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
-            plaintext
-          </span>
+          <span className="text-xs text-muted">plaintext</span>
         </div>
         <input
           id={inputId}
@@ -65,30 +61,25 @@ function SealDemo() {
             setText(e.target.value);
             pulseScene(0.35);
           }}
-          className="secret mt-3 h-12 w-full rounded-[var(--radius-control)] border border-line bg-bg/70 px-3 text-base transition-shadow focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--sv-accent)_25%,transparent)]"
+          className="secret mt-4 h-13 w-full rounded-[var(--radius-control)] border border-line bg-bg px-4 text-base transition-shadow focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--sv-accent)_22%,transparent)]"
         />
-        <p className="mt-2 text-xs text-muted">
+        <p className="mt-3 text-xs text-muted">
           Type anything. It is encrypted here with a key that never leaves this page.
         </p>
       </div>
-      <div className="flex items-center gap-2 px-5 pt-4 text-xs text-muted" aria-hidden="true">
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
-        AES-256-GCM
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
-      </div>
-      <div className="p-5 pt-3">
+      <div className="bg-bg/40 p-6 sm:p-8">
         <div className="flex items-center justify-between">
           <p className="eyebrow">What the server stores</p>
-          <span className="font-mono text-xs text-muted">{sealed.length} chars</span>
+          <span className="font-mono text-xs text-muted">AES-256-GCM · {sealed.length} chars</span>
         </div>
         <p
           key={generation}
           aria-live="off"
-          className="secret cipher-flash mt-3 max-h-36 overflow-hidden text-xs leading-relaxed text-muted [mask-image:linear-gradient(to_bottom,black_65%,transparent)]"
+          className="secret cipher-flash mt-4 max-h-32 overflow-hidden text-xs leading-relaxed text-muted [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
         >
           {sealed || '…'}
         </p>
-        <p className="mt-3 text-xs text-muted">
+        <p className="mt-4 text-xs text-muted">
           The length is padded to 256-byte steps, so even short secrets look alike.
         </p>
       </div>
@@ -144,21 +135,19 @@ function Reveal({
 }
 
 function StepCard({ step, index }: { step: (typeof STEPS)[number]; index: number }) {
-  const tilt = useTilt<HTMLDivElement>(6);
   const Icon = step.icon;
   return (
     <Reveal as="li" index={index}>
-      <div ref={tilt} className="tilt glass group h-full p-6">
-        <div className="tilt-pop flex items-center justify-between">
-          <span className="flex size-11 items-center justify-center rounded-full border border-accent/40 bg-accent-soft text-accent transition-transform duration-300 group-hover:scale-110">
-            <Icon size={20} aria-hidden="true" />
-          </span>
-          <span className="font-mono text-xs text-muted">
-            0{index + 1} / {step.label}
-          </span>
-        </div>
-        <h3 className="display tilt-pop mt-6 text-lg font-semibold">{step.title}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-muted">{step.body}</p>
+      <div className="panel group flex h-full flex-col p-8 transition-transform duration-500 hover:-translate-y-1">
+        <span className="font-display text-6xl leading-none font-semibold text-accent/25 transition-colors duration-500 group-hover:text-accent/60">
+          0{index + 1}
+        </span>
+        <span className="mt-8 flex items-center gap-2 text-sm font-medium text-accent">
+          <Icon size={16} aria-hidden="true" />
+          {step.label}
+        </span>
+        <h3 className="display mt-3 text-xl font-semibold">{step.title}</h3>
+        <p className="mt-3 text-[0.95rem] leading-relaxed text-muted">{step.body}</p>
       </div>
     </Reveal>
   );
@@ -171,21 +160,22 @@ export function LandingPage() {
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-x-clip">
-      {/* One fixed scene for the whole page: sections scroll over it and it turns as they do. */}
-      <SceneBackdrop intensity="hero" className="fixed inset-0" />
-      <div className="grid-field pointer-events-none fixed inset-0" aria-hidden="true" />
-      <header className="relative z-10 mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
+      <div
+        className="spotlight pointer-events-none absolute inset-x-0 top-0 h-[120vh]"
+        aria-hidden="true"
+      />
+      <header className="relative z-10 mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-6">
         <Wordmark />
-        <nav aria-label="Account" className="flex items-center gap-2">
+        <nav aria-label="Account" className="flex items-center gap-1">
           <Link
             to="/login"
-            className="rounded-[var(--radius-control)] px-3 py-2 text-sm transition-colors hover:bg-surface-2"
+            className="rounded-full px-3 py-2 text-sm whitespace-nowrap text-muted transition-colors hover:text-text sm:px-4"
           >
             Sign in
           </Link>
           <Link
             to="/register"
-            className="cta rounded-[var(--radius-control)] bg-accent px-3 py-2 text-sm font-medium text-on-accent"
+            className="cta rounded-full bg-text px-4 py-2 text-sm font-medium whitespace-nowrap text-bg"
           >
             Create a vault
           </Link>
@@ -193,97 +183,87 @@ export function LandingPage() {
       </header>
 
       <main id="main" className="relative flex-1">
-        <section className="relative">
-          <div className="relative mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl items-center px-4 py-12">
-            <div className="max-w-[36rem]">
-              <p className="eyebrow">Zero-knowledge · Argon2id · AES-256-GCM</p>
-              <h1 className="display mt-5 max-w-[15ch] text-[2.6rem] leading-[1.02] font-bold sm:text-[3.8rem]">
-                <span className="sr-only">{HEADLINE}</span>
-                <span aria-hidden="true">{decoded}</span>
-              </h1>
-              <p className="mt-6 max-w-[48ch] text-lg text-muted">
-                SecureVault keeps your logins in a vault that only your master password opens. The
-                server stores sealed data and never receives the key.
-              </p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Link
-                  to="/register"
-                  className="cta group inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-accent px-6 py-3.5 font-semibold text-on-accent"
-                >
-                  Create a vault
-                  <ArrowRight
-                    size={18}
-                    aria-hidden="true"
-                    className="transition-transform duration-200 group-hover:translate-x-1"
-                  />
-                </Link>
-                <Link
-                  to="/login"
-                  className="glass inline-flex items-center rounded-[var(--radius-control)] px-6 py-3.5 font-medium transition-colors hover:border-accent/50"
-                >
-                  Sign in
-                </Link>
-              </div>
+        {/* Hero: centred type, then the vault itself, like a product shot. */}
+        <section className="relative mx-auto grid w-full max-w-6xl items-center gap-4 px-6 pt-12 text-center sm:pt-16 lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-[1.05fr_1fr] lg:pt-0 lg:text-left">
+          <div>
+            <p className="eyebrow">Zero-knowledge password manager</p>
+            <h1 className="display mx-auto mt-6 max-w-[15ch] text-[2.7rem] leading-[1.02] font-semibold sm:text-[4.2rem] lg:mx-0">
+              <span className="sr-only">{HEADLINE}</span>
+              <span aria-hidden="true">{decoded}</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-[44ch] text-lg text-muted lg:mx-0">
+              SecureVault keeps your logins in a vault that only your master password opens. The
+              server stores sealed data and never receives the key.
+            </p>
+            <div className="mt-10 flex flex-wrap justify-center gap-3 lg:justify-start">
+              <Link
+                to="/register"
+                className="cta group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 font-semibold text-on-accent"
+              >
+                Create a vault
+                <ArrowRight
+                  size={18}
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover:translate-x-1"
+                />
+              </Link>
+              <Link
+                to="/login"
+                className="inline-flex items-center rounded-full border border-line px-7 py-3.5 font-medium transition-colors hover:border-text/40"
+              >
+                Sign in
+              </Link>
             </div>
           </div>
-          <a
-            href="#try"
-            className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted transition-colors hover:text-accent sm:flex"
-          >
-            Try it
-            <span
-              className="h-8 w-px animate-pulse bg-gradient-to-b from-accent to-transparent"
-              aria-hidden="true"
-            />
-          </a>
+          <SceneBackdrop
+            intensity="hero"
+            className="vault-stage relative h-[52vh] max-h-[640px] min-h-[340px] w-full lg:h-[72vh]"
+          />
         </section>
 
         <section
           id="try"
           aria-labelledby="try-heading"
-          className="relative mx-auto grid w-full max-w-6xl scroll-mt-8 items-center gap-10 px-4 py-24 lg:grid-cols-[1fr_1fr]"
+          className="relative mx-auto w-full max-w-6xl px-6 py-24"
         >
-          <Reveal>
-            <p className="eyebrow">Live demo</p>
-            <h2 id="try-heading" className="display mt-3 max-w-[18ch] text-3xl font-bold">
-              Type a secret and watch what the server would get
-            </h2>
-            <p className="mt-4 max-w-[46ch] text-muted">
-              This runs the same record encryption as the vault, with a key made for this page
-              alone. Every keystroke produces entirely new ciphertext.
-            </p>
-            <div className="mt-8">
-              <SealDemo />
+          <Reveal className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="eyebrow">Live demo</p>
+              <h2 id="try-heading" className="display mt-4 max-w-[16ch] text-4xl font-semibold">
+                Type a secret. See what the server gets.
+              </h2>
+              <p className="mt-5 max-w-[44ch] text-muted">
+                This runs the same record encryption as the vault, with a key made for this page
+                alone. Every keystroke turns the lock and produces entirely new ciphertext.
+              </p>
+              <SceneBackdrop intensity="ambient" className="relative mt-4 hidden h-72 lg:block" />
             </div>
+            <SealDemo />
           </Reveal>
         </section>
 
-        <section aria-labelledby="how" className="relative mx-auto w-full max-w-6xl px-4 py-24">
-          <Reveal>
+        <section aria-labelledby="how" className="relative mx-auto w-full max-w-6xl px-6 py-24">
+          <Reveal className="text-center">
             <p className="eyebrow">How it works</p>
-            <h2 id="how" className="display mt-3 max-w-[22ch] text-3xl font-bold">
-              Three steps, and the key never leaves your device
+            <h2 id="how" className="display mx-auto mt-4 max-w-[20ch] text-4xl font-semibold">
+              The key never leaves your device.
             </h2>
           </Reveal>
-          <ol className="relative mt-12 grid gap-5 md:grid-cols-3">
-            <span
-              aria-hidden="true"
-              className="absolute top-[2.85rem] right-[16%] left-[16%] hidden h-px bg-gradient-to-r from-accent/0 via-accent/50 to-accent/0 md:block"
-            />
+          <ol className="mt-14 grid gap-5 md:grid-cols-3">
             {STEPS.map((step, i) => (
               <StepCard key={step.title} step={step} index={i} />
             ))}
           </ol>
         </section>
 
-        <section aria-labelledby="limits" className="relative mx-auto w-full max-w-6xl px-4 pb-24">
-          <div className="glass grid gap-10 p-6 sm:p-10 md:grid-cols-[1fr_1.6fr]">
+        <section aria-labelledby="limits" className="relative mx-auto w-full max-w-6xl px-6 pb-28">
+          <div className="panel grid gap-10 p-8 sm:p-12 md:grid-cols-[1fr_1.5fr]">
             <Reveal>
               <p className="eyebrow">Honest limits</p>
-              <h2 id="limits" className="display mt-3 text-2xl font-bold">
+              <h2 id="limits" className="display mt-4 text-3xl font-semibold">
                 What it cannot protect against
               </h2>
-              <p className="mt-3 text-sm text-muted">
+              <p className="mt-4 text-sm text-muted">
                 Knowing the limits helps you decide what to store and how to protect your device.
               </p>
             </Reveal>
@@ -293,9 +273,9 @@ export function LandingPage() {
                   as="li"
                   key={limit}
                   index={i}
-                  className="flex gap-4 border-t border-line py-4 text-sm first:border-t-0 first:pt-0"
+                  className="flex gap-5 border-t border-line py-5 text-[0.95rem] first:border-t-0 first:pt-0"
                 >
-                  <span className="font-mono text-xs text-warn">0{i + 1}</span>
+                  <span className="font-mono text-xs text-accent">0{i + 1}</span>
                   <span>{limit}</span>
                 </Reveal>
               ))}
@@ -305,7 +285,7 @@ export function LandingPage() {
       </main>
 
       <footer className="relative border-t border-line">
-        <p className="mx-auto max-w-6xl px-4 py-6 text-sm text-muted">
+        <p className="mx-auto max-w-6xl px-6 py-8 text-sm text-muted">
           SecureVault is a security engineering project. It has not been independently audited, so
           do not use it for passwords you cannot afford to lose.
         </p>

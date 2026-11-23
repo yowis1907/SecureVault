@@ -4,9 +4,9 @@
 @import '@fontsource-variable/bricolage-grotesque';
 
 /*
- * SecureVault tokens: "a precision instrument".
- * Graphite and mineral-grey neutrals, one verdigris accent (the patina of oxidized copper).
- * Colour carries meaning only: verdigris = unlocked/primary, amber = weak or expiring, red = danger.
+ * SecureVault tokens: "a precision instrument" under a single light.
+ * Warm graphite neutrals and one champagne accent, the colour of a brushed brass vault door.
+ * Colour carries meaning only: champagne = unlocked/primary, amber = weak or expiring, red = danger.
  * Atkinson Hyperlegible was drawn so that l, I, 1, O and 0 cannot be confused, which matters for
  * reading and typing passwords.
  *
@@ -14,58 +14,61 @@
  */
 :root {
   color-scheme: light;
-  --sv-bg: #eceeea;
-  --sv-surface: #f7f8f5;
-  --sv-surface-2: #e2e5e0;
-  --sv-line: #c9cec8;
-  --sv-text: #1b1f22;
-  --sv-muted: #565e5b;
-  --sv-accent: #2b7164;
-  --sv-accent-strong: #1f5a4f;
-  --sv-on-accent: #f7f8f5;
-  --sv-accent-soft: #d3e6e0;
+  --sv-bg: #f3f1ed;
+  --sv-surface: #ffffff;
+  --sv-surface-2: #ebe8e2;
+  --sv-line: #dedad2;
+  --sv-text: #16161a;
+  --sv-muted: #5d5a54;
+  --sv-accent: #86652d;
+  --sv-accent-strong: #6b4f20;
+  --sv-on-accent: #ffffff;
+  --sv-accent-soft: #f1e8d8;
   --sv-warn: #8a5a0b;
   --sv-warn-soft: #f1e3c8;
   --sv-danger: #a23a2f;
   --sv-danger-soft: #f2d9d5;
+  --sv-spot: rgb(255 255 255 / 0.9);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --sv-bg: #080b0e;
-    --sv-surface: #0f1418;
-    --sv-surface-2: #172026;
-    --sv-line: #24313a;
-    --sv-text: #e9f0ec;
-    --sv-muted: #93a39c;
-    --sv-accent: #3fe0b0;
-    --sv-accent-strong: #7cf0cc;
-    --sv-on-accent: #03130e;
-    --sv-accent-soft: #10342b;
-    --sv-warn: #e0a84a;
+    --sv-bg: #0b0b0d;
+    --sv-surface: #151518;
+    --sv-surface-2: #1e1e22;
+    --sv-line: #2b2b31;
+    --sv-text: #f3f1ec;
+    --sv-muted: #a09d96;
+    --sv-accent: #d9bd8c;
+    --sv-accent-strong: #efd7ad;
+    --sv-on-accent: #1b150b;
+    --sv-accent-soft: #2c261c;
+    --sv-warn: #e7b25c;
     --sv-warn-soft: #3a2e17;
-    --sv-danger: #ec8a7d;
+    --sv-danger: #ee8e80;
     --sv-danger-soft: #3d2320;
+    --sv-spot: rgb(255 244 222 / 0.07);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --sv-bg: #080b0e;
-  --sv-surface: #0f1418;
-  --sv-surface-2: #172026;
-  --sv-line: #24313a;
-  --sv-text: #e9f0ec;
-  --sv-muted: #93a39c;
-  --sv-accent: #3fe0b0;
-  --sv-accent-strong: #7cf0cc;
-  --sv-on-accent: #03130e;
-  --sv-accent-soft: #10342b;
-  --sv-warn: #e0a84a;
+  --sv-bg: #0b0b0d;
+  --sv-surface: #151518;
+  --sv-surface-2: #1e1e22;
+  --sv-line: #2b2b31;
+  --sv-text: #f3f1ec;
+  --sv-muted: #a09d96;
+  --sv-accent: #d9bd8c;
+  --sv-accent-strong: #efd7ad;
+  --sv-on-accent: #1b150b;
+  --sv-accent-soft: #2c261c;
+  --sv-warn: #e7b25c;
   --sv-warn-soft: #3a2e17;
-  --sv-danger: #ec8a7d;
+  --sv-danger: #ee8e80;
   --sv-danger-soft: #3d2320;
+  --sv-spot: rgb(255 244 222 / 0.07);
 }
 
 @theme inline {
@@ -98,8 +101,8 @@
   --text-2xl: 1.953rem;
   --text-3xl: 2.441rem;
 
-  --radius-control: 6px;
-  --radius-panel: 10px;
+  --radius-control: 10px;
+  --radius-panel: 22px;
 }
 
 @layer base {
@@ -174,64 +177,44 @@
   .display {
     font-family: var(--font-display);
     font-optical-sizing: auto;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
   /* A small mono label above a heading. */
   .eyebrow {
-    font-family: var(--font-mono);
     font-size: var(--text-xs);
-    letter-spacing: 0.14em;
+    font-weight: 600;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--sv-accent);
   }
 
-  /* Frosted panel over the 3D scene, with a hairline that catches the accent at the top. */
-  .glass {
+  /* A mat panel: solid surface, large radius, a hairline top highlight, and a long soft shadow,
+     like an object resting under a single light. */
+  .panel {
     position: relative;
-    background: color-mix(in oklab, var(--sv-surface) 72%, transparent);
-    backdrop-filter: blur(14px) saturate(140%);
-    border: 1px solid color-mix(in oklab, var(--sv-line) 80%, transparent);
+    background: var(--sv-surface);
+    border: 1px solid var(--sv-line);
     border-radius: var(--radius-panel);
     box-shadow:
-      0 1px 0 0 color-mix(in oklab, var(--sv-accent) 22%, transparent) inset,
-      0 24px 60px -30px rgb(0 0 0 / 0.55);
+      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+      0 1px 2px rgb(0 0 0 / 0.12),
+      0 30px 80px -40px rgb(0 0 0 / 0.6);
   }
 
-  /* A faint grid that fades out toward the edges, behind the public pages. */
-  .grid-field {
-    background-image:
-      linear-gradient(color-mix(in oklab, var(--sv-line) 45%, transparent) 1px, transparent 1px),
-      linear-gradient(
-        90deg,
-        color-mix(in oklab, var(--sv-line) 45%, transparent) 1px,
-        transparent 1px
-      );
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse at 60% 35%, black 10%, transparent 70%);
+  /* A warm pool of light behind the hero vault, so it reads as lit on a stage. */
+  .vault-stage {
+    background: radial-gradient(
+      circle at 50% 48%,
+      color-mix(in oklab, var(--sv-accent) 16%, transparent),
+      transparent 58%
+    );
   }
 
-  /* Inside the app: the same grid, plus a soft accent light from the top. CSS only, so it costs
-     nothing while the user works. */
-  .app-glow {
-    background-image:
-      radial-gradient(
-        ellipse 60% 40% at 50% -5%,
-        color-mix(in oklab, var(--sv-accent) 14%, transparent),
-        transparent 70%
-      ),
-      linear-gradient(color-mix(in oklab, var(--sv-line) 35%, transparent) 1px, transparent 1px),
-      linear-gradient(
-        90deg,
-        color-mix(in oklab, var(--sv-line) 35%, transparent) 1px,
-        transparent 1px
-      );
-    background-size:
-      100% 100%,
-      56px 56px,
-      56px 56px;
-    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  /* One soft spotlight from above, the only background decoration. CSS only. */
+  .spotlight {
+    background: radial-gradient(ellipse 70% 55% at 50% -10%, var(--sv-spot), transparent 70%);
   }
 
   /* 3D tilt toward the pointer. --rx and --ry are set through CSSOM by useTilt. */
@@ -247,7 +230,7 @@
     transition-duration: 0.08s;
   }
   .tilt-pop {
-    transform: translateZ(28px);
+    transform: translateZ(14px);
   }
 
   /* Revealed once when scrolled into view (useReveal). Children can stagger with --i. */

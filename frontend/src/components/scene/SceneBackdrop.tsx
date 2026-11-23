@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import { useEffect, useRef, useState } from 'react';
-import type { CipherScene } from './cipher-scene';
+import type { VaultScene } from './vault-scene';
 import { mediaQuery } from '../../lib/motion';
 import { subscribeScene } from './signal';
 
@@ -24,7 +24,7 @@ export function SceneBackdrop({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    let scene: CipherScene | undefined;
+    let scene: VaultScene | undefined;
     let cancelled = false;
     const cleanups: (() => void)[] = [];
     const motion = mediaQuery(reducedMotionQuery);
@@ -37,11 +37,11 @@ export function SceneBackdrop({
       return;
     }
 
-    void import('./cipher-scene')
-      .then(({ CipherScene }) => {
+    void import('./vault-scene')
+      .then(({ VaultScene }) => {
         if (cancelled) return;
         try {
-          scene = new CipherScene(canvas, { intensity, reducedMotion: motion.matches });
+          scene = new VaultScene(canvas, { intensity, reducedMotion: motion.matches });
         } catch {
           return; // No WebGL: keep the plain background.
         }

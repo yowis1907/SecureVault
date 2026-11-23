@@ -54,7 +54,10 @@ export function AppShell() {
 
   return (
     <div className="relative flex min-h-dvh flex-col">
-      <div className="grid-field app-glow pointer-events-none fixed inset-0" aria-hidden="true" />
+      <div
+        className="spotlight pointer-events-none fixed inset-x-0 top-0 h-[70vh]"
+        aria-hidden="true"
+      />
       <a
         href="#main"
         className="sr-only z-50 rounded-[var(--radius-control)] bg-surface px-3 py-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2"

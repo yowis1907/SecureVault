@@ -4,15 +4,27 @@ import { SceneBackdrop } from '../scene/SceneBackdrop';
 import { Wordmark } from './Wordmark';
 
 /**
- * Sign-in, sign-up, and unlock: one glass panel over a quiet version of the 3D scene, so the
- * form has nothing competing with it but the page still feels like the same place as the landing.
+ * Sign-in, sign-up, and unlock: the form on the left, the vault on the right under the same
+ * spotlight as the landing page. On narrow screens the vault is left out and the form is alone.
  */
-export function AuthBackdrop({ children }: { children: ReactNode }) {
+export function AuthBackdrop({ header, children }: { header?: ReactNode; children: ReactNode }) {
   return (
     <div className="relative flex min-h-dvh flex-col overflow-x-clip">
-      <SceneBackdrop intensity="ambient" className="fixed inset-0" />
-      <div className="grid-field pointer-events-none fixed inset-0" aria-hidden="true" />
-      <div className="relative flex flex-1 flex-col">{children}</div>
+      <div
+        className="spotlight pointer-events-none absolute inset-x-0 top-0 h-screen"
+        aria-hidden="true"
+      />
+      <header className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
+        <Wordmark />
+        {header}
+      </header>
+      <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 px-6 pb-12 lg:grid-cols-[minmax(0,28rem)_1fr]">
+        <div className="flex w-full justify-center lg:justify-start">{children}</div>
+        <SceneBackdrop
+          intensity="ambient"
+          className="relative hidden h-[min(70vh,620px)] lg:block"
+        />
+      </div>
     </div>
   );
 }
@@ -30,18 +42,13 @@ export function AuthLayout({
 }) {
   return (
     <AuthBackdrop>
-      <header className="mx-auto flex h-16 w-full max-w-6xl items-center px-4">
-        <Wordmark />
-      </header>
-      <main id="main" className="flex flex-1 justify-center px-4 py-8 sm:py-14">
-        <div className="glass rise h-fit w-full max-w-md p-6 sm:p-8">
-          <h1 className="display text-2xl font-bold">{title}</h1>
-          {intro ? <div className="mt-2 text-muted">{intro}</div> : null}
-          <div className="mt-8">{children}</div>
-          {footer ? (
-            <div className="mt-8 border-t border-line pt-6 text-sm text-muted">{footer}</div>
-          ) : null}
-        </div>
+      <main id="main" className="panel rise w-full max-w-md p-7 sm:p-9">
+        <h1 className="display text-3xl font-semibold">{title}</h1>
+        {intro ? <div className="mt-3 text-muted">{intro}</div> : null}
+        <div className="mt-8">{children}</div>
+        {footer ? (
+          <div className="mt-8 border-t border-line pt-6 text-sm text-muted">{footer}</div>
+        ) : null}
       </main>
     </AuthBackdrop>
   );

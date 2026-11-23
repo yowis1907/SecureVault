@@ -6,7 +6,7 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
-- **3D interface.** A "key space" scene in three.js (a point cloud around a wireframe vault core) behind the landing, sign-in, and unlock pages. It follows the pointer and scrolling, bursts as you type in the encryption demo, contracts while Argon2id derives the key, and opens on unlock. Deeper dark theme, a display face for headings, glass panels, 3D tilt cards, scroll reveals, a decoding headline and generator, count-up figures, and a shake on a wrong master password. All motion respects reduced motion.
+- **New interface with a 3D vault.** A polished vault door built in three.js stands beside the landing headline, the sign-in forms, and the unlock form. It turns toward the pointer and with scrolling, turns its locking wheel as you type in the encryption demo, spins it while Argon2id derives the key, and swings open, lit from inside, on unlock. Graphite and champagne palette, mat panels with large radii, a single spotlight instead of decoration, a display face for headings, scroll reveals, a decoding headline and generator, count-up figures, and a shake on a wrong master password. All motion respects reduced motion.
 - **Firefox end-to-end runs.** CI runs the end-to-end suite in Chromium and Firefox, each against its own stack.
 - **Backend dependency scan.** CI lists every runtime Maven dependency with CycloneDX and checks it against the OSV database.
 - **Encrypted backup.** Export the vault to a file encrypted with a separate backup passphrase (Argon2id, HKDF label `securevault/v1/backup`, AES-256-GCM with the header authenticated), and import it into any vault under new IDs through the batch endpoint. Plaintext export is not offered.

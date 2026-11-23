@@ -23,7 +23,7 @@ function Figure({
       ref={tilt}
       to={to}
       state={state}
-      className="tilt glass group flex flex-col gap-1 p-4 transition-colors hover:border-accent/50"
+      className="tilt panel group flex flex-col gap-1 p-5 transition-colors hover:border-accent/50"
     >
       <span className="tilt-pop font-mono text-3xl tabular-nums transition-colors group-hover:text-accent">
         <span className="sr-only">{value}</span>
@@ -48,7 +48,7 @@ export function DashboardPage() {
 
   if (vault.logins.length === 0) {
     return (
-      <div className="glass relative grid max-w-3xl overflow-hidden sm:grid-cols-[1.2fr_1fr]">
+      <div className="panel relative grid max-w-3xl overflow-hidden sm:grid-cols-[1.2fr_1fr]">
         <div className="relative p-8">
           <p className="eyebrow">Unlocked</p>
           <h1 className="mt-2 text-3xl font-bold">Your vault is empty</h1>

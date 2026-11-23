@@ -4,7 +4,6 @@ import { useEffect, useState, type SyntheticEvent } from 'react';
 import { clsx } from 'clsx';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { AuthBackdrop } from '../../components/layout/AuthLayout';
-import { Wordmark } from '../../components/layout/Wordmark';
 import { setSceneMode } from '../../components/scene/signal';
 import { Button } from '../../components/ui/Button';
 import { PasswordField } from '../../components/ui/Field';
@@ -49,7 +48,7 @@ export function UnlockPage() {
       setOpened(true);
       setSceneMode('open');
       // A short beat so the vault visibly opens before the page changes.
-      if (!reducedMotion) await new Promise((r) => setTimeout(r, 420));
+      if (!reducedMotion) await new Promise((r) => setTimeout(r, 700));
       void navigate(from?.startsWith('/app') ? from : '/app', { replace: true });
     } catch (e) {
       setSceneMode('error');
@@ -72,23 +71,23 @@ export function UnlockPage() {
   }
 
   return (
-    <AuthBackdrop>
-      <header className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
-        <Wordmark />
+    <AuthBackdrop
+      header={
         <button
           type="button"
           onClick={() => void signOut()}
-          className="rounded-[var(--radius-control)] px-3 py-2 text-sm text-muted hover:bg-surface-2 hover:text-text"
+          className="rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-text"
         >
           Sign out
         </button>
-      </header>
-      <main id="main" className="flex flex-1 items-start justify-center px-4 pt-[10vh] pb-12">
+      }
+    >
+      <main id="main" className="w-full max-w-md">
         <form
           noValidate
           onSubmit={(e) => void submit(e)}
           className={clsx(
-            'glass rise flex w-full max-w-sm flex-col gap-5 p-6 sm:p-8',
+            'panel rise flex w-full flex-col gap-5 p-7 sm:p-9',
             shake > 0 && (shake % 2 ? 'shake-a' : 'shake-b'),
           )}
         >
@@ -110,7 +109,7 @@ export function UnlockPage() {
               )}
             </span>
             <div>
-              <h1 className="display text-2xl font-bold">
+              <h1 className="display text-3xl font-semibold">
                 {opened ? 'Vault open' : 'Vault locked'}
               </h1>
               {me.data ? <p className="text-sm break-all text-muted">{me.data.email}</p> : null}
