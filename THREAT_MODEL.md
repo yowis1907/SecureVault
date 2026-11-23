@@ -120,7 +120,7 @@ Data crossing from Boundary 1 to Boundary 2 must never include A1, A2, or A3. Th
 
 | # | Scenario | Actor | Mitigation | Residual risk |
 |---|---|---|---|---|
-| 25 | Stored XSS through a decrypted field | T7 | React escaping; no raw HTML; URL scheme validation; strict CSP | Severe if bypassed while unlocked |
+| 25 | Stored XSS through a decrypted field | T7 | React escaping; no raw HTML; URL scheme validation; strict CSP with Trusted Types enforced | Severe if bypassed while unlocked |
 | 26 | Script extracts the DEK | T7 | Non-extractable `CryptoKey` | Script can still *use* the key and read decrypted data, so this limits persistence only |
 | 27 | Malicious extension or malware | T7, T8 | Out of scope; documented | **Accepted** |
 | 28 | Walk-away access to an unlocked vault | T8 | Auto-lock, manual lock, cross-tab lock | Window before the timer fires |

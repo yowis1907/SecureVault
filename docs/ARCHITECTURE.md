@@ -321,7 +321,8 @@ Throttling answers with HTTP 429 and `Retry-After`; accounts are never hard-lock
 ```
 Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self';
   img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self';
-  base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  base-uri 'none'; form-action 'self'; frame-ancestors 'none';
+  require-trusted-types-for 'script'; trusted-types securevault-worker
 Strict-Transport-Security: max-age=31536000; includeSubDomains   (production)
 X-Content-Type-Options: nosniff
 Referrer-Policy: no-referrer
@@ -331,7 +332,9 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 Cache-Control: no-store       (API responses)
 ```
 
-`'wasm-unsafe-eval'` permits WebAssembly compilation for Argon2id without allowing JavaScript `eval`. Website favicons are intentionally not loaded, since fetching them would reveal vault contents to third parties.
+`'wasm-unsafe-eval'` permits WebAssembly compilation for Argon2id without allowing JavaScript `eval`.
+
+**Trusted Types.** In browsers that support them, every script sink (`innerHTML`, `eval`, the `Function` constructor, script and worker URLs) refuses a plain string. The app uses exactly one sink, the Argon2 worker URL, so there is one policy, `securevault-worker` (`frontend/src/lib/trusted-types.ts`), which accepts that one same-origin URL and throws for anything else. There is no default policy, so any other use is blocked, not passed through. Zod runs with `jitless`, since its `new Function` probe would otherwise be refused and reported. The e2e journey fails on any CSP violation and checks that a string assigned to `innerHTML` is refused. Browsers without Trusted Types ignore the two directives and keep the rest of the policy. Website favicons are intentionally not loaded, since fetching them would reveal vault contents to third parties.
 
 ## 9. Deployment
 
@@ -360,12 +363,11 @@ These become individual ADRs in `docs/adr/` during Phase 1.
 
 ## 11. Still unverified
 
-Node 26 compatibility, the hash-wasm 4.13 review, cookie naming, and the CSP behavior of UI libraries were settled during the build and are no longer listed.
+Node 26 compatibility, the hash-wasm 4.13 review, cookie naming, Trusted Types (section 8), and the CSP behavior of UI libraries were settled during the build and are no longer listed.
 
 | Item | Planned for phase |
 |---|---|
 | Benchmark KDF on a mid-range phone; revise before any data format ships. Measured so far, 2026-11-10, with `npm run benchmark` under the production CSP: laptop with Intel i5-12450H, Chromium 152, median 223 ms over 5 runs. **No phone measured yet** | 2 |
-| Feasibility of adding `require-trusted-types-for 'script'` to the CSP. Not tried in a browser; the Web Worker URL would need a policy first | 4 |
 | Read the full ePrint 2026/058 paper and update section 5.11. The PDF could not be downloaded on two attempts, most recently 2026-11-11 | 2 |
 
 ## References

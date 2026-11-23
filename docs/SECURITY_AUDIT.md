@@ -52,7 +52,7 @@ Test gaps closed in this phase: clipboard clearing (delay, restart, clear on loc
 | C | The per-email sign-in limit (30 per 15 minutes) lets an attacker temporarily block sign-in for a known address | Trade-off against distributed guessing. It is a throttle, not a lock, and clears by itself |
 | D | No `Strict-Transport-Security` header in the nginx config | The stack serves plain HTTP for local use. A real deployment needs TLS termination that adds it. No production deployment exists |
 | E | Docker base images are pinned by tag, not digest | Dependabot tracks them; digest pinning was not done |
-| F | Trusted Types are not enforced | Not evaluated in a browser. The Web Worker URL would need a policy first |
+| F | ~~Trusted Types are not enforced~~ | Closed 2026-11-23: enforced by the CSP with one policy for the worker URL. Verified in Edge locally and in Chromium and Firefox in CI |
 | G | The Argon2id cost was measured on one laptop only (223 ms) | No phone was available |
 | H | The research paper behind ARCHITECTURE section 5.11 was not read in full | The PDF could not be downloaded on two attempts. The section relies on the abstract and the authors' summary |
 | I | Encrypted backup was added on 2026-11-22, after this audit | Tested (see scenario 35), but not part of the Phase 6 review |
@@ -100,7 +100,7 @@ Tested means an automated test exercises the mitigation. Reviewed means it was c
 | 22 Oversized bodies | Tested | `RecordsIT`; chunked bodies probed on the stack only |
 | 23 SQL injection | Reviewed | Every statement uses bound parameters; no injection test suite |
 | 24 Sensitive error details | Tested | `GlobalExceptionHandlerTest`, `ErrorResponsesIT` |
-| 25 Stored XSS through a decrypted field | Tested | `model.test.ts`; a lint rule forbids raw HTML |
+| 25 Stored XSS through a decrypted field | Tested | `model.test.ts`; a lint rule forbids raw HTML; since 2026-11-23 Trusted Types are enforced and the e2e journey checks that a string at `innerHTML` is refused |
 | 26 Script extracts the DEK | Tested, with residual | The key is non-extractable; script in the page could still use it while unlocked |
 | 27 Malicious extension or malware | Accepted | Outside what a web app can prevent |
 | 28 Walk-away access | Tested | Auto-lock tests in `session.test.ts`; lock in `e2e` |

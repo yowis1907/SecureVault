@@ -1,3 +1,5 @@
+// First, so it applies before any module creates a schema.
+import './lib/zod-config';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';

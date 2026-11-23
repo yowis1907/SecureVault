@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => {
   const benchmark = mode === 'benchmark';
   return {
     plugins: [react(), tailwindcss()],
+    // The Argon2 worker is started with `type: 'module'`, so it is built as an ES module.
+    worker: { format: 'es' },
     server: {
       // Proxying keeps development same-origin, matching production, so CORS stays closed.
       proxy: {
