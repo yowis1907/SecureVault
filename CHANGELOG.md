@@ -22,6 +22,8 @@ Notable changes to SecureVault. The format follows [Keep a Changelog](https://ke
 
 ### Security
 
+- ESLint 10.15.0, which brings minimatch 11 and closes GHSA-g3hv-75wg-m249 (a denial of service in minimatch 7 to 11.0.0). Development tooling only; the shipped app was not affected.
+- `.gitleaks.toml` keeps all default secret-scanning rules and exempts only the Argon2id test-vector file, whose made-up test passwords were flagged as a generic API key.
 - Trusted Types are enforced by the CSP. One policy admits the Argon2 worker URL and nothing else; every other script sink refuses strings. Zod runs without its `new Function` optimization.
 - The CodeQL action was pinned to a commit that is not part of any `github/codeql-action` release, under a comment naming v4.39.3. It now uses the real v4.39.3 commit, and a new CI job checks that every pinned action SHA matches the release its comment names.
 - CI jobs ask only for the permissions they use: CodeQL reads its own run, and secret scanning reads a pull request's commits.

@@ -1,0 +1,15 @@
+# Secret scanning configuration. All of gitleaks' default rules stay on; the only exception is
+# below, and it is limited to a single file of test data.
+title = "SecureVault"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Argon2id test vectors, shared by the frontend and backend tests. The passwordHex fields are
+made-up test passwords (for example "correct horse battery staple" and a deliberately
+multilingual "pässwörd-şifre-密码-🔐"), published here on purpose so anyone can check the
+key derivation. They are not credentials and unlock nothing.
+"""
+paths = ['''^frontend/src/crypto/testdata/argon2id-vectors\.json$''']
